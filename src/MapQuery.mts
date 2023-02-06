@@ -60,8 +60,8 @@ export default class MapQuery {
     this.OpforNumTickets = $b.OpforNumTickets ?? 500;
   }
   toString(): string {
-    let map: string = ''
-    map += this.Map
+    let map: string = '';
+    map += this.Map;
     if (this.game != null) map += `?game=${this.game}`
     if (this.BluforFaction != null) map += `?BluforFaction=${this.BluforFaction}`
     if (this.OpforFaction != null) map += `?OpforFaction=${this.OpforFaction}`
