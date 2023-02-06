@@ -8,6 +8,7 @@ export type MapQueryProps = {
   OpforFaction: string
   MinPlayers: number
   MaxPlayers: number
+  AutoFillHuman: null | 0 | 1
   bDisableKitRestrictions: boolean
   bBotAutofill: boolean
   BluforNumBots: number
@@ -44,6 +45,8 @@ export default class MapQuery {
   public BluforNumTickets: MapQueryProps['BluforNumTickets']
   /**How many Reinforcements should the Red Team have */
   public OpforNumTickets: MapQueryProps['OpforNumTickets']
+  /**What Team to force players to. */
+  public AutoFillHuman: MapQueryProps['AutoFillHuman']
 
   constructor($b: Partial<MapQueryProps> = {}) {
     if (typeof $b === 'string') {
@@ -57,6 +60,7 @@ export default class MapQuery {
     this.MaxPlayers = $b.MaxPlayers ?? 64;
     this.bDisableKitRestrictions = $b.bDisableKitRestrictions ?? false;
     this.bBotAutofill = $b.bBotAutofill ?? false;
+    this.AutoFillHuman = $b.AutoFillHuman ?? null;
     this.BluforNumBots = $b.BluforNumBots ?? 0;
     this.OpforNumBots = $b.OpforNumBots ?? 0;
     this.BluforNumTickets = $b.BluforNumTickets ?? 500;
@@ -76,6 +80,7 @@ export default class MapQuery {
     if (this.bDisableKitRestrictions == true) map += `?bDisableKitRestrictions`
     if (this.bBotAutofill == true) map += `?bBotAutofill`
     if (this.BluforNumBots != null) map += `?BluforNumBots=${this.BluforNumBots}`
+    if (this.AutoFillHuman != null) map += `?AutoFillHuman=${this.AutoFillHuman}`
     if (this.OpforNumBots != null) map += `?OpforNumBots=${this.OpforNumBots}`
     if (this.BluforNumTickets != null) map += `?BluforNumTickets=${this.BluforNumTickets}`
     if (this.OpforNumTickets != null) map += `?OpforNumTickets=${this.OpforNumTickets}`
