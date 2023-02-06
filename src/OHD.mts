@@ -248,9 +248,9 @@ export default class OHD {
   /**
    * Force the team of a `Player` by Username.
    *
-   * 0: Blufor
+   * 1: Blufor
    *
-   * 1: Opfor
+   * 0: Opfor
    */
   forceTeam(name: string, teamId: 0|1): Promise<unknown> {
     return this.send(`ForceTeam "${name}" ${teamId}`);
@@ -258,9 +258,9 @@ export default class OHD {
   /**
    * Force the team of a `Player` by PlayerID.
    *
-   * 0: Blufor
+   * 1: Blufor
    *
-   * 1: Opfor
+   * 0: Opfor
    */
   forceTeamId(id: number, teamId: 0|1): Promise<unknown> {
     return this.send(`ForceTeamId ${id} ${teamId}`);
