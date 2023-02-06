@@ -1,4 +1,8 @@
+/**
+ * All the Current Vanilla In-Game Factions.
+ */
 enum Factions {
+  /**Default Faction for the Map */
   DEFAULT = 'default',
   BP_HDFactionInfo_PMC = 'BP_HDFactionInfo_PMC',
   BP_HDFactionInfo_Russians = 'BP_HDFactionInfo_Russians',

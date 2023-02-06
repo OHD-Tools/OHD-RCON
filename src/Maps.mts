@@ -1,3 +1,6 @@
+/**
+ * All the current In-Game maps
+ */
 enum Maps {
   /**A Middle Eastern Map based on Fallujah.
    *
