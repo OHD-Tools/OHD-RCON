@@ -1,14 +1,14 @@
 {
   "name": "@afocommunity/ohd-rcon",
-  "version": "0.2.1",
-  "main": "/lib/index.mjs",
-  "types": "/types",
+  "version": "0.3.0",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "type": "module",
   "scripts": {
     "build": "npx tsc",
     "lint": "npx eslint ./src/* --fix",
     "prepublish": "npm run lint && npm run build",
-    "document": "npx typedoc ./src/index.mts"
+    "document": "npx typedoc ./src/index.ts"
   },
   "keywords": [
     "RCON",

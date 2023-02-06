@@ -1,4 +1,4 @@
-import type Player from '../Player.mjs'
+import type Player from '../Player'
 export default interface ServerStatus {
   Server_Name: string
   Local_Address: string

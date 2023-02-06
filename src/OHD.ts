@@ -3,8 +3,8 @@ import { Socket } from 'net';
 import events from 'events'
 import net from 'net'
 import ServerStatus from './definitions/ServerStatus';
-import MapQuery, { MapQueryProps } from './MapQuery.mjs';
-import Player from './Player.mjs';
+import MapQuery, { MapQueryProps } from './MapQuery';
+import Player from './Player';
 
 enum PacketType {
   COMMAND = 0x02,
