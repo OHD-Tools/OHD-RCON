@@ -1,4 +1,4 @@
-import type Plater from '../Player.mjs'
+import type Player from '../Player.mjs'
 export default interface ServerStatus {
   Server_Name: string
   Local_Address: string
