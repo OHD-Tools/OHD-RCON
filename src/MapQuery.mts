@@ -16,6 +16,9 @@ export type MapQueryProps = {
   OpforNumTickets: number
 }
 
+/**
+ * Builder for OHD Map Strings
+ */
 export default class MapQuery {
   /**What map to set the server to */
   public Map: MapQueryProps['Map']
@@ -59,6 +62,9 @@ export default class MapQuery {
     this.BluforNumTickets = $b.BluforNumTickets ?? 500;
     this.OpforNumTickets = $b.OpforNumTickets ?? 500;
   }
+  /**
+   * Generate the Level String
+   */
   toString(): string {
     let map = '';
     map += this.Map;

@@ -156,8 +156,13 @@ type ResponsePromiseQueueObject = {
   resolve: (data: unknown) => void;
   timeOut: NodeJS.Timeout;
 }
+
+
+/**
+ * Primary Interface Object for OHD servers.
+ */
 export default class OHD {
-  public messageID = 1
+  private messageID = 1
   public onReady: Promise<null>
   protected _conn!: Rcon
   protected _isAuthorized!: boolean
@@ -184,41 +189,85 @@ export default class OHD {
 
     this._conn.connect();
   }
+  /**
+   * Get the Server Status.
+   */
   status(): Promise<ServerStatus> {
     return this.send('status') as Promise<ServerStatus>;
   }
+  /**
+   * Add `amount` bots to the server.
+   */
   addBots(amount = 1): Promise<unknown> {
     return this.send(`addBots ${amount}`);
   }
+  /**
+   * Add a Named Bot to the server.
+   */
   addNamedBot(name = 'Chuck Norris'): Promise<unknown> {
     return this.send(`addNamedBot ${name}`);
   }
+  /**
+   * Remove all bots from the server.
+   */
   removeAllBots(): Promise<unknown> {
     return this.send('removeAllBots');
   }
+  /**
+   * Kick a `Player` from the server by Username
+   */
   kick(name: string, reason = 'You have been Kicked'): Promise<unknown> {
     return this.send(`kick "${name}" "${reason}"`);
   }
+  /**
+   * Kick a `Player` from the server by PlayerID
+   */
   kickId(id: number, reason = 'You have been Kicked'): Promise<unknown> {
     return this.send(`kickId ${id} "${reason}"`);
   }
-  ban(name: string, duration = 0, reason?: string,): Promise<unknown> {
+  /**
+   * Ban a `Player` from the server by Username.
+   */
+  ban(name: string, /** Duration in Seconds*/ duration = 0, reason?: string,): Promise<unknown> {
     if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`
     return this.send(`ban "${name}" "${reason}" ${duration}`);
   }
-  banId(id: number, duration = 0, reason?: string): Promise<unknown> {
+  /**
+   * Ban a `Player` from the server by PlayerID.
+   */
+  banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string): Promise<unknown> {
     if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`
     return this.send(`banId ${id} "${reason}" ${duration}`);
   }
+  /**
+   * Create a new MapQuery Object to use with `serverTravel()`.
+   */
   createMapQuery(options?: MapQueryProps): MapQuery {
     return new MapQuery(options);
   }
-  forceTeam(name: string, teamId: number): Promise<unknown> {
+  /**
+   * Force the team of a `Player` by Username.
+   *
+   * 0: Blufor
+   *
+   * 1: Opfor
+   */
+  forceTeam(name: string, teamId: 0|1): Promise<unknown> {
     return this.send(`ForceTeam "${name}" ${teamId}`);
   }
-  forceTeamId(id: number, teamId: number): Promise<unknown> {
+  /**
+   * Force the team of a `Player` by PlayerID.
+   *
+   * 0: Blufor
+   *
+   * 1: Opfor
+   */
+  forceTeamId(id: number, teamId: 0|1): Promise<unknown> {
     return this.send(`ForceTeamId ${id} ${teamId}`);
   }
+  /**
+   * Change the current Level.
+   */
   serverTravel(map: MapQuery | string): Promise<unknown> {
     let mapString: string;
     if (map instanceof MapQuery) {
@@ -228,6 +277,9 @@ export default class OHD {
     }
     return this.send(`serverTravel ${mapString}`);
   }
+  /**
+   * Send a Raw RCON command.
+   */
   send(cmd: string): Promise<unknown> {
     const id: number = this.messageID++;
 
@@ -251,7 +303,7 @@ export default class OHD {
       this._conn.send(cmd, 0x02, id);
     });
   }
-  _onResponse(response: RconResponse): void {
+  protected _onResponse(response: RconResponse): void {
     const size: number = response?.size;
     if (this._responsePromiseQueue.has(response.id)) {
       const q: ResponsePromiseQueueObject = this._responsePromiseQueue.get(response.id) as ResponsePromiseQueueObject;
@@ -269,7 +321,7 @@ export default class OHD {
     // Non command
     //TODO
   }
-  _parseResponse(res: string): unknown {
+  protected _parseResponse(res: string): unknown {
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = {};
     const data: string = res?.replaceAll('\\n', '\n');
@@ -329,10 +381,10 @@ export default class OHD {
     if (!handled) return null;
     return response;
   }
-  _onError(str: string): void {
+  protected _onError(str: string): void {
     console.error(str);
   }
-  onEnd(): void {
+  protected onEnd(): void {
     //TODO: onEnd
   }
 }
