@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "npx tsc",
-    "lint": "npx eslint ./src/* --fix"
+    "lint": "npx eslint ./src/* --fix",
+    "prepublish": "npm run lint && npm run build"
   },
   "keywords": [
     "RCON",
