@@ -1,4 +1,4 @@
-import type OHD from './OHD.mjs'
+import type OHD from './OHD'
 type PlayerProps = {
   id: number
   steam64: string | null

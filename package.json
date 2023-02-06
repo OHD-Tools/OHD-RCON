@@ -1,8 +1,7 @@
 {
   "name": "@afocommunity/ohd-rcon",
-  "version": "0.2.1",
-  "main": "/lib/index.mjs",
-  "types": "/types",
+  "version": "0.2.38",
+  "main": "/lib/index.js",
   "type": "module",
   "scripts": {
     "build": "npx tsc",

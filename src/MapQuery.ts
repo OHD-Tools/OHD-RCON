@@ -1,5 +1,5 @@
-import Maps from './Maps.mjs';
-import Factions from './Factions.mjs';
+import Maps from './Maps';
+import Factions from './Factions';
 
 export type MapQueryProps = {
   Map: Maps
