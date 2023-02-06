@@ -4,6 +4,10 @@
 
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/afocommunity/ohd-rcon) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/afocommunity/ohd-rcon)
 
+# Documentation
+
+Documentation can be found [HERE](https://afocommunity.github.io/OHD-RCON/modules.html)
+
 # Usage
 
 ```ts
