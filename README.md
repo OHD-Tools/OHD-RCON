@@ -1,6 +1,6 @@
 # Operation: Harsh Doorstop RCON Interface
 
-![npm](https://img.shields.io/npm/dw/@afocommunity/ohd-rcon) ![GitHub Sponsors](https://img.shields.io/github/sponsors/afocommunity) [![GitHub issues](https://img.shields.io/github/issues/afocommunity/ohd-rcon)](https://github.com/afocommunity/OHD-RCON/issues) ![GitHub](https://img.shields.io/badge/license-MIT-brightgreen) ![npm bundle size (scoped)](https://img.shields.io/bundlephobia/minzip/@afocommunity/ohd-rcon) ![node-current (scoped)](https://img.shields.io/node/v/@afocommunity/ohd-rcon) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/afocommunity/ohd-rcon)
+![npm](https://img.shields.io/npm/dw/@afocommunity/ohd-rcon) ![GitHub Sponsors](https://img.shields.io/github/sponsors/afocommunity) [![GitHub issues](https://img.shields.io/github/issues/afocommunity/ohd-rcon)](https://github.com/afocommunity/OHD-RCON/issues) ![GitHub](https://img.shields.io/badge/license-MIT-brightgreen) ![npm bundle size (scoped)](https://img.shields.io/bundlephobia/minzip/@afocommunity/ohd-rcon) ![Codacy grade](https://img.shields.io/codacy/grade/bc777618c71e42fb87caae1c0c970327?logo=codacy) ![node-current (scoped)](https://img.shields.io/node/v/@afocommunity/ohd-rcon) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/afocommunity/ohd-rcon)
 
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/afocommunity/ohd-rcon) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/afocommunity/ohd-rcon)
 
