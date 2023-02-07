@@ -2,7 +2,7 @@ name: Run ESLint Checks
 on:
   - pull_request
 jobs:
-  build:
+  eslint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
