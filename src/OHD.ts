@@ -154,6 +154,7 @@ type ResponsePromiseQueueObject = {
   buffer: string;
   handled: boolean;
   resolve: (data: unknown) => void;
+  reject: (reason: unknown) => void;
   timeOut: NodeJS.Timeout;
 }
 
@@ -283,7 +284,7 @@ export default class OHD {
   send(cmd: string): Promise<unknown> {
     const id: number = this.messageID++;
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const ob: ResponsePromiseQueueObject = {
         time: new Date(),
         buffer: '',
@@ -292,6 +293,10 @@ export default class OHD {
       ob.resolve = (dat: unknown): void => {
         ob.handled = true;
         resolve(dat);
+      };
+      ob.reject = (dat: unknown): void => {
+        ob.handled = true;
+        reject(dat);
       };
       //? Timeout in the event of the final packet is Max packet length
       ob.timeOut = setTimeout((): void => {
@@ -303,6 +308,7 @@ export default class OHD {
       this._conn.send(cmd, 0x02, id);
     });
   }
+
   protected _onResponse(response: RconResponse): void {
     const size: number = response?.size;
     if (this._responsePromiseQueue.has(response.id)) {
@@ -312,9 +318,14 @@ export default class OHD {
         q.buffer += response.body;
         return;
       }
-      const res: unknown =
+      //eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res: any =
         this._parseResponse((q.buffer ?? '') + response.body) ?? response;
-      q.resolve(res);
+      if (res.success === false) {
+        q.reject(res.data);
+      } else {
+        q.resolve(res.data ?? res);
+      }
       this._responsePromiseQueue.delete(response.id);
       return;
     }
@@ -323,7 +334,11 @@ export default class OHD {
   }
   protected _parseResponse(res: string): unknown {
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response: any = {};
+    const response: any = {
+      success: true,
+      //eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: {} as any
+    };
     const data: string = res?.replaceAll('\\n', '\n');
 
     if (data == null || data?.trim?.() == '') return null;
@@ -345,27 +360,27 @@ export default class OHD {
       const statusServerInfo = data.match(matchStatusServerRegex);
       if (statusServerInfo != null) {
         handled = true;
-        response.Server_Name = statusServerInfo.groups?.Server_Name;
-        response.Local_Address = statusServerInfo.groups?.Local_Address;
-        response.Map = statusServerInfo.groups?.Map;
-        response.Game_Mode = statusServerInfo.groups?.Game_Mode;
-        response.Game_Mode_Class = statusServerInfo.groups?.Game_Mode_Class;
-        response.Hybernation = statusServerInfo.groups?.Hybernation == 'Yes';
-        response.Match_State = statusServerInfo.groups?.Match_State;
-        response.Session_State = statusServerInfo.groups?.Session_State;
-        response.Players_Human = parseInt(
+        response.data.Server_Name = statusServerInfo.groups?.Server_Name;
+        response.data.Local_Address = statusServerInfo.groups?.Local_Address;
+        response.data.Map = statusServerInfo.groups?.Map;
+        response.data.Game_Mode = statusServerInfo.groups?.Game_Mode;
+        response.data.Game_Mode_Class = statusServerInfo.groups?.Game_Mode_Class;
+        response.data.Hybernation = statusServerInfo.groups?.Hybernation == 'Yes';
+        response.data.Match_State = statusServerInfo.groups?.Match_State;
+        response.data.Session_State = statusServerInfo.groups?.Session_State;
+        response.data.Players_Human = parseInt(
           statusServerInfo.groups?.Players_Human as string
         );
-        response.Players_Bots = parseInt(statusServerInfo.groups?.Players_Bots as string);
-        response.Players_Spectator = parseInt(
+        response.data.Players_Bots = parseInt(statusServerInfo.groups?.Players_Bots as string);
+        response.data.Players_Spectator = parseInt(
           statusServerInfo.groups?.Players_Spectator as string
         );
         const statusPlayerList = data.matchAll(matchStatusPlayerListRegex);
 
-        response.Players = [];
+        response.data.Players = [];
         if (statusPlayerList) {
           for (const match of statusPlayerList) {
-            response.Players.push(
+            response.data.Players.push(
               new Player(this, {
                 id: parseInt(match.groups?.Player_ID as string),
                 name: match.groups?.Name?.trim() as string,
