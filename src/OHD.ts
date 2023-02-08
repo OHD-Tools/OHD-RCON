@@ -279,6 +279,14 @@ export default class OHD {
     return this.send(`serverTravel ${mapString}`);
   }
   /**
+   * Send a message to all players.
+   *
+   * @note These messages only display from the in-game console currently.
+   */
+  say(message: string): Promise<unknown> {
+    return this.send(`say "${message}"`);
+  }
+  /**
    * Send a Raw RCON command.
    */
   send(cmd: string): Promise<unknown> {
