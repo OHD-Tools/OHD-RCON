@@ -142,7 +142,6 @@ class Rcon extends EventEmitter {
     this.emit('connect');
     this.send(this.password, PacketType.AUTH);
   }
-
   socketOnEnd(): void {
     this.emit('end');
     this.hasAuthed = false;
@@ -163,8 +162,11 @@ type ResponsePromiseQueueObject = {
  * Primary Interface Object for OHD servers.
  */
 export default class OHD {
-  private messageID = 1
+  /**
+   * Rejects if an error occurs when connecting.
+   */
   public onReady: Promise<null>
+  protected messageID = 1
   protected _conn!: Rcon
   protected _isAuthorized!: boolean
   protected _responsePromiseQueue!: Map<number, ResponsePromiseQueueObject>
@@ -175,9 +177,14 @@ export default class OHD {
     Object.defineProperty(this, '_onError', { enumerable: false, value: this._onError.bind(this) });
     Object.defineProperty(this, '_onEnd', { enumerable: false, value: this.onEnd.bind(this) });
     Object.defineProperty(this, '_conn', { enumerable: false, value: new Rcon(ip, port, password) });
-    this.onReady = new Promise((res) => {
+    this.onReady = new Promise((res, rej) => {
       let handled = false;
-      this._conn.on('auth', (): void => {
+      this._conn.once('error', (err) => {
+        if (handled) return
+        handled = true;
+        rej(err)
+      })
+      this._conn.once('auth', (): void => {
         if (handled) return;
         handled = true;
         res(null);
@@ -190,60 +197,61 @@ export default class OHD {
 
     this._conn.connect();
   }
+
   /**
    * Get the Server Status.
    */
-  status(): Promise<ServerStatus> {
+  public status(): Promise<ServerStatus> {
     return this.send('status') as Promise<ServerStatus>;
   }
   /**
    * Add `amount` bots to the server.
    */
-  addBots(amount = 1): Promise<unknown> {
+  public addBots(amount = 1): Promise<unknown> {
     return this.send(`addBots ${amount}`);
   }
   /**
    * Add a Named Bot to the server.
    */
-  addNamedBot(name = 'Chuck Norris'): Promise<unknown> {
+  public addNamedBot(name = 'Chuck Norris'): Promise<unknown> {
     return this.send(`addNamedBot ${name}`);
   }
   /**
    * Remove all bots from the server.
    */
-  removeAllBots(): Promise<unknown> {
+  public removeAllBots(): Promise<unknown> {
     return this.send('removeAllBots');
   }
   /**
    * Kick a `Player` from the server by Username
    */
-  kick(name: string, reason = 'You have been Kicked'): Promise<unknown> {
+  public kick(name: string, reason = 'You have been Kicked'): Promise<unknown> {
     return this.send(`kick "${name}" "${reason}"`);
   }
   /**
    * Kick a `Player` from the server by PlayerID
    */
-  kickId(id: number, reason = 'You have been Kicked'): Promise<unknown> {
+  public kickId(id: number, reason = 'You have been Kicked'): Promise<unknown> {
     return this.send(`kickId ${id} "${reason}"`);
   }
   /**
    * Ban a `Player` from the server by Username.
    */
-  ban(name: string, /** Duration in Seconds*/ duration = 0, reason?: string,): Promise<unknown> {
+  public ban(name: string, /** Duration in Seconds*/ duration = 0, reason?: string,): Promise<unknown> {
     if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`
     return this.send(`ban "${name}" "${reason}" ${duration}`);
   }
   /**
    * Ban a `Player` from the server by PlayerID.
    */
-  banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string): Promise<unknown> {
+  public banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string): Promise<unknown> {
     if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`
     return this.send(`banId ${id} "${reason}" ${duration}`);
   }
   /**
    * Create a new MapQuery Object to use with `serverTravel()`.
    */
-  createMapQuery(options?: MapQueryProps): MapQuery {
+  public createMapQuery(options?: MapQueryProps): MapQuery {
     return new MapQuery(options);
   }
   /**
@@ -253,7 +261,7 @@ export default class OHD {
    *
    * 0: Opfor
    */
-  forceTeam(name: string, teamId: 0|1): Promise<unknown> {
+  public forceTeam(name: string, teamId: 0 | 1): Promise<unknown> {
     return this.send(`ForceTeam "${name}" ${teamId}`);
   }
   /**
@@ -263,13 +271,13 @@ export default class OHD {
    *
    * 0: Opfor
    */
-  forceTeamId(id: number, teamId: 0|1): Promise<unknown> {
+  public forceTeamId(id: number, teamId: 0 | 1): Promise<unknown> {
     return this.send(`ForceTeamId ${id} ${teamId}`);
   }
   /**
    * Change the current Level.
    */
-  serverTravel(map: MapQuery | string): Promise<unknown> {
+  public serverTravel(map: MapQuery | string): Promise<unknown> {
     let mapString: string;
     if (map instanceof MapQuery) {
       mapString = map.toString();
@@ -283,13 +291,13 @@ export default class OHD {
    *
    * @note These messages only display from the in-game console currently.
    */
-  say(message: string): Promise<unknown> {
+  public say(message: string): Promise<unknown> {
     return this.send(`say "${message}"`);
   }
   /**
    * Send a Raw RCON command.
    */
-  send(cmd: string): Promise<unknown> {
+  public send(cmd: string): Promise<unknown> {
     const id: number = this.messageID++;
 
     return new Promise((resolve, reject) => {

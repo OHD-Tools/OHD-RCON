@@ -3,7 +3,7 @@ import Factions from './Factions';
 
 export type MapQueryProps = {
   Map: Maps
-  game: string | null
+  Game: string | null
   BluforFaction: string
   OpforFaction: string
   MinPlayers: number
@@ -24,7 +24,7 @@ export default class MapQuery {
   /**What map to set the server to */
   public Map: MapQueryProps['Map']
   /**Exclusive to Modded Gamemodes */
-  public game: MapQueryProps['game']
+  public Game: MapQueryProps['Game']
   /**Blue Team Faction */
   public BluforFaction: MapQueryProps['BluforFaction']
   /**Red Team Faction*/
@@ -50,10 +50,10 @@ export default class MapQuery {
 
   constructor($b: Partial<MapQueryProps> = {}) {
     if (typeof $b === 'string') {
-      //TODO: Parser
+      $b = MapQuery.parse($b);
     }
     this.Map = $b.Map ?? Maps.Argonne;
-    this.game = $b.game ?? null;
+    this.Game = $b.Game ?? null;
     this.BluforFaction = $b.BluforFaction ?? Factions.DEFAULT;
     this.OpforFaction = $b.OpforFaction ?? Factions.DEFAULT;
     this.MinPlayers = $b.MinPlayers ?? 1;
@@ -66,13 +66,43 @@ export default class MapQuery {
     this.BluforNumTickets = $b.BluforNumTickets ?? 500;
     this.OpforNumTickets = $b.OpforNumTickets ?? 500;
   }
+  static parse(query: string): Partial<MapQueryProps> {
+    const parsed: Partial<MapQueryProps> = {};
+    const Map = /^(\w+)/ig.exec(query)?.[1]
+    const BluforFaction = /\?Bluforfaction=(\w+)/ig.exec(query)?.[1]
+    const OpforFaction = /\?Opforfaction=(\w+)/ig.exec(query)?.[1]
+    const Game = /\?game=(\/\w+\/[\w._]+)/ig.exec(query)?.[1]
+    const MinPlayers = /\?MinPlayers=(\d+)/ig.exec(query)?.[1]
+    const MaxPlayers = /\?MaxPlayers=(\d+)/ig.exec(query)?.[1]
+    const bDisableKitRestrictions = /\?(bDisableKitRestrictions)/ig.exec(query)?.[1]
+    const bBotAutofill = /\?(bBotAutofill)/ig.exec(query)?.[1]
+    const BluforNumBots = /\?BluforNumBots=(\d+)/ig.exec(query)?.[1]
+    const OpforNumBots = /\?OpforNumBots=(\d+)/ig.exec(query)?.[1]
+    const BluforNumTickets = /\?BluforNumTickets=(\d+)/ig.exec(query)?.[1]
+    const OpforNumTickets = /\?OpforNumTickets=(\d+)/ig.exec(query)?.[1]
+    const AutoFillHuman = /\?AutoFillHuman=([01])/ig.exec(query)?.[1]
+    parsed.Map = Map as Maps
+    parsed.Game = Game
+    parsed.BluforFaction = BluforFaction
+    parsed.OpforFaction = OpforFaction
+    parsed.MinPlayers = MinPlayers != null ? parseInt(MinPlayers) : undefined
+    parsed.MaxPlayers = MaxPlayers != null ? parseInt(MaxPlayers) : undefined
+    parsed.bDisableKitRestrictions = bDisableKitRestrictions != null
+    parsed.bBotAutofill = bBotAutofill != null
+    parsed.BluforNumBots = BluforNumBots != null ? parseInt(BluforNumBots) : undefined
+    parsed.OpforNumBots = OpforNumBots != null ? parseInt(OpforNumBots) : undefined
+    parsed.BluforNumTickets = BluforNumTickets != null ? parseInt(BluforNumTickets) : undefined
+    parsed.OpforNumTickets = OpforNumTickets != null ? parseInt(OpforNumTickets) : undefined
+    parsed.AutoFillHuman = AutoFillHuman != null ? parseInt(AutoFillHuman) as 0 : undefined
+    return new MapQuery(parsed)
+  }
   /**
    * Generate the Level String
    */
   toString(): string {
     let map = '';
     map += this.Map;
-    if (this.game != null) map += `?game=${this.game}`
+    if (this.Game != null) map += `?game=${this.Game}`
     if (this.BluforFaction != null) map += `?BluforFaction=${this.BluforFaction}`
     if (this.OpforFaction != null) map += `?OpforFaction=${this.OpforFaction}`
     if (this.MinPlayers != null) map += `?MinPLayers=${this.MinPlayers}`
