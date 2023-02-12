@@ -7,16 +7,14 @@ interface Readable<T> {
   read: () => Promise<T>
   write: (newValue: T) => Promise<T>
 }
-type bit = '0' | '1'
-
 export interface OHDVariables {
   Game: {
-    FriendlyFire: Readable<bit>;
-    AutoBalanceTeamsOverride: Readable<bit>;
-    AutoAssignHumanTeam: Readable<bit | '-1'>;
+    FriendlyFire: Readable<'0' | '1'>;
+    AutoBalanceTeamsOverride: Readable<'0' | '1'>;
+    AutoAssignHumanTeam: Readable<'0' | Teams>;
   }
   Bot: {
-    Autofill: Readable<bit>;
+    Autofill: Readable<'0' | '1'>;
   }
   Net: {
     MinPlayersOverride: Readable<`${number}`>;

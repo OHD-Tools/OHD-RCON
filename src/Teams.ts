@@ -1,4 +1,4 @@
 export enum Teams {
-  Opfor = 0,
-  Blufor = 1
+  Opfor = '0',
+  Blufor = '1'
 }
