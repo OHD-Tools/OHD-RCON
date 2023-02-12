@@ -1,12 +1,14 @@
 import EventEmitter from 'events';
 import { Socket } from 'net';
-import events from 'events'
-import net from 'net'
+import events from 'events';
+import net from 'net';
 import ServerStatus from './definitions/ServerStatus';
 import MapQuery, { MapQueryProps } from './MapQuery';
 import RCONParser from './parser/RCONParser';
 import PlayerKicked from './definitions/PlayerKicked';
 import PlayerBanned from './definitions/PlayerBanned';
+import { Teams } from './Teams';
+import { setupVariableProxy } from './Variables';
 
 enum PacketType {
   COMMAND = 0x02,
@@ -29,14 +31,14 @@ type RconResponse = {
  * Stripped Down and modified by @bombitmanbomb
  */
 class Rcon extends EventEmitter {
-  public host: string
-  public port: number
-  public password: string
-  public outstandingData: Buffer | null = null
-  public hasAuthed: boolean
-  protected _tcpSocket!: Socket
+  public host: string;
+  public port: number;
+  public password: string;
+  public outstandingData: Buffer | null = null;
+  public hasAuthed: boolean;
+  protected _tcpSocket!: Socket;
   constructor(host: string, port: number, password: string) {
-    super()
+    super();
     this.host = host;
     this.port = port;
     this.password = password;
@@ -167,14 +169,14 @@ export default class OHD {
   /**
    * Rejects if an error occurs when connecting.
    */
-  public onReady: Promise<null>
-  public rconParser: RCONParser
-  protected messageID = 1
-  protected _conn!: Rcon
-  protected _isAuthorized!: boolean
-  protected _responsePromiseQueue!: Map<number, ResponsePromiseQueueObject>
+  public onReady: Promise<null>;
+  public rconParser: RCONParser;
+  protected messageID = 1;
+  protected _conn!: Rcon;
+  protected _isAuthorized!: boolean;
+  protected _responsePromiseQueue!: Map<number, ResponsePromiseQueueObject>;
   constructor(ip: string, port: number, password: string) {
-    this.rconParser = new RCONParser(this)
+    this.rconParser = new RCONParser(this);
     Object.defineProperty(this, '_isAuthorized', { enumerable: false, value: false });
     Object.defineProperty(this, '_responsePromiseQueue', { enumerable: false, value: new Map });
     Object.defineProperty(this, '_onResponse', { enumerable: false, value: this._onResponse.bind(this) });
@@ -184,10 +186,10 @@ export default class OHD {
     this.onReady = new Promise((res, rej) => {
       let handled = false;
       this._conn.once('error', (err) => {
-        if (handled) return
+        if (handled) return;
         handled = true;
-        rej(err)
-      })
+        rej(err);
+      });
       this._conn.once('auth', (): void => {
         if (handled) return;
         handled = true;
@@ -211,8 +213,8 @@ export default class OHD {
       return {
         ...status.status,
         Players: status.players
-      }
-    })
+      };
+    });
   }
   /**
    * Add `amount` bots to the server.
@@ -227,10 +229,69 @@ export default class OHD {
     return this.send(`addNamedBot ${name}`) as Promise<void>;
   }
   /**
+   * Add bots to a specified Team
+   */
+  public addTeamBots(team: 0 | 1 | Teams, amount: number): Promise<unknown> {
+    return this.send(`addTeamBots ${team} ${amount}`);
+  }
+  /**
+   * Add bots to the Opfor Team
+   */
+  public addOpforBots(amount: number): Promise<unknown> {
+    return this.send(`addOpforBots ${amount}`);
+  }
+  /**
+   * Add bots to the Blufor Team
+   */
+  public addBluforBots(amount: number): Promise<unknown> {
+    return this.send(`addBluforBots ${amount}`);
+  }
+  /**
+   * Remove bots from the specified Team
+   */
+  public removeTeamBots(team: 0 | 1 | Teams, amount: number): Promise<unknown> {
+    return this.send(`removeTeamBots ${team} ${amount}`);
+  }
+  /**
+   * Remove bots from the Opfor Team
+   */
+  public removeOpforBots(amount: number): Promise<unknown> {
+    return this.send(`removeOpforBots ${amount}`);
+  }
+  /**
+   * Remove bots from the Blufor Team
+   */
+  public removeBluforBots(amount: number): Promise<unknown> {
+    return this.send(`removeBluforBots ${amount}`);
+  }
+  /**
+   * Set the state of FriendlyFire
+   */
+  public friendlyFire(enabled: boolean | 0 | 1): Promise<unknown> {
+    return this.send(`Game.FriendlyFire ${enabled ? 1 : 0}`);
+  }
+  /**
+   * Forces all new players to the specified team. Users can not change to any other team.
+   *
+   * @note This does not force change existing players team, only new ones
+   */
+  public autoAssignHumanTeam(team: -1 | 0 | 1 | Teams): Promise<unknown> {
+    return this.send(`Game.AutoAssignHumanTeam ${team}`);
+  }
+  /**
+   * Enable/Disable Team Autobalancing
+   */
+  public autoBalanceTeamsOverride(enabled: boolean | 0 | 1): Promise<unknown> {
+    return this.send(`Game.AutoBalanceTeamsOverride ${enabled ? 1 : 0}`);
+  }
+  /**
    * Remove all bots from the server.
    */
   public removeAllBots(): Promise<void> {
     return this.send('removeAllBots') as Promise<void>;
+  }
+  public botAutofill(enabled: boolean | 0 | 1): Promise<unknown> {
+    return this.send(`Bot.Autofill ${enabled ? 1 : 0}`);
   }
   /**
    * Kick a `Player` from the server by Username
@@ -248,15 +309,15 @@ export default class OHD {
    * Ban a `Player` from the server by Username.
    */
   public ban(name: string, /** Duration in Seconds*/ duration = 0, reason?: string,): Promise<PlayerBanned> {
-    if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`
-    return this.send(`ban "${name}" "${reason}" ${duration}`) as  Promise<PlayerBanned>;
+    if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`;
+    return this.send(`ban "${name}" "${reason}" ${duration}`) as Promise<PlayerBanned>;
   }
   /**
    * Ban a `Player` from the server by PlayerID.
    */
-  public banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string):  Promise<PlayerBanned> {
-    if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`
-    return this.send(`banId ${id} "${reason}" ${duration}`) as  Promise<PlayerBanned>;
+  public banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string): Promise<PlayerBanned> {
+    if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`;
+    return this.send(`banId ${id} "${reason}" ${duration}`) as Promise<PlayerBanned>;
   }
   /**
    * Create a new MapQuery Object to use with `serverTravel()`.
@@ -271,7 +332,7 @@ export default class OHD {
    *
    * 0: Opfor
    */
-  public forceTeam(name: string, teamId: 0 | 1): Promise<unknown> {
+  public forceTeam(name: string, teamId: 0 | 1 | Teams): Promise<unknown> {
     return this.send(`ForceTeam "${name}" ${teamId}`);
   }
   /**
@@ -281,10 +342,33 @@ export default class OHD {
    *
    * 0: Opfor
    */
-  public forceTeamId(id: number, teamId: 0 | 1): Promise<unknown> {
+  public forceTeamId(id: number, teamId: 0 | 1 | Teams): Promise<unknown> {
     return this.send(`ForceTeamId ${id} ${teamId}`);
   }
   /**
+<<<<<<< Updated upstream
+=======
+   * Set the AutoAssignHuman variable.
+   *
+   * -1: Disable
+   *
+   *  0: Opfor
+   *
+   *  1: Blufor
+   */
+  public autoAssignHuman(team: -1 | 0 | 1 | Teams = -1): Promise<unknown> {
+    return this.send(`autoassignhuman ${team}`);
+  }
+  /**
+   * Dot Access Setter for Server Variables.
+   *
+   * Do not ever set an accessor to a variable, always use .read() and .write()
+   */
+  get variables() {
+    return setupVariableProxy(this);
+  }
+  /**
+>>>>>>> Stashed changes
    * Change the current Level.
    */
   public serverTravel(map: MapQuery | string): Promise<unknown> {
@@ -366,7 +450,6 @@ export default class OHD {
   }
   protected _parseResponse(res: string): unknown {
     const data: string = res?.replaceAll('\\n', '\n');
-
     if (data == null || data?.trim?.() == '') return null;
     //TODO Seperate Out into Modules
     /**Example messages for Kicking
@@ -375,7 +458,7 @@ export default class OHD {
      * "Failed to kick specified player by id number with reason 'This', no player with the id number '999' exists or the kick operation has failed!"
      * "Failed to kick specified player by name with reason 'This is a Test', no player with the name 'GenericPlayer' exists or the kick operation has failed!"
      */
-    return this.rconParser.parse(data)
+    return this.rconParser.parse(data);
   }
   protected _onError(str: string): void {
     console.error(str);
