@@ -285,6 +285,14 @@ export default class OHD {
     return this.send(`ForceTeamId ${id} ${teamId}`);
   }
   /**
+   * Dot Access Setter for Server Variables.
+   *
+   * Do not ever set an accessor to a variable, always use .read() and .write()
+   */
+  get variables() {
+    return setupVariableProxy(this);
+  }
+  /**
    * Change the current Level.
    */
   public serverTravel(map: MapQuery | string): Promise<unknown> {

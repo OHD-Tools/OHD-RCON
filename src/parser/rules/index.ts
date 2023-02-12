@@ -4,6 +4,8 @@ import PlayerKickFailedRule from './PlayerKickFailedRule';
 import PlayerKickedRule from './PlayerKickedRule';
 import StatusPlayerRule from './StatusPlayerRule';
 import StatusRule from './StatusRule';
+import VariableChangedRule from './VariableChangedRule';
+import VariableReadRule from './VariableReadRule';
 
 export default [
   StatusPlayerRule,
@@ -11,5 +13,7 @@ export default [
   PlayerKickedRule,
   PlayerKickFailedRule,
   PlayerBannedRule,
-  PlayerBanFailedRule
+  PlayerBanFailedRule,
+  VariableChangedRule,
+  VariableReadRule
 ];
