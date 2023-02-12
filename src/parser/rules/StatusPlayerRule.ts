@@ -16,6 +16,7 @@ const StatusPlayerRule: LogParserRule<Player[]> = {
         })
       );
     }
+    return response
   },
   multiProperty: 'players'
 }
