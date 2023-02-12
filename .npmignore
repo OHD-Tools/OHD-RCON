@@ -1,6 +1,12 @@
 docs/
 src/
 .github/
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+SECURITY.md
 .eslintignore
 .eslintrc
 tsconfig.json
+.gitattributes
+.gitignore
+.npmignore
