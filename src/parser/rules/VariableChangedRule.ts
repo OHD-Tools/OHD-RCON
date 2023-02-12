@@ -6,9 +6,9 @@ const VariableChangedRule: LogParserRule<VariableChanged> = {
   format: (oargs) => {
     const args = oargs as RegExpMatchArray;
     const response: Partial<VariableChanged> = {} as VariableChanged;
-    response.variable = args.groups?.variable as string
-    response.value = args.groups?.value as string
-    return response as VariableChanged
+    response.variable = args.groups?.variable as string;
+    response.value = args.groups?.value as string;
+    return response as VariableChanged;
   },
-}
-export default VariableChangedRule
+};
+export default VariableChangedRule;

@@ -22,8 +22,8 @@ const StatusRule: LogParserRule<unknown> = {
     response.Players_Spectator = parseInt(
       args.groups?.Players_Spectator as string
     );
-    return response
+    return response;
   },
   multiProperty: 'status'
-}
-export default StatusRule
+};
+export default StatusRule;

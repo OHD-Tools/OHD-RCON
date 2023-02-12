@@ -5,7 +5,7 @@ const StatusPlayerRule: LogParserRule<Player[]> = {
   matchAll: true,
   format: (oargs, controller) => {
     const args = oargs as IterableIterator<RegExpMatchArray>;
-    const response: Player[] = []
+    const response: Player[] = [];
     for (const match of args) {
       response.push(
         new Player(controller, {
@@ -16,8 +16,8 @@ const StatusPlayerRule: LogParserRule<Player[]> = {
         })
       );
     }
-    return response
+    return response;
   },
   multiProperty: 'players'
-}
-export default StatusPlayerRule
+};
+export default StatusPlayerRule;
