@@ -41,4 +41,4 @@ enum Maps {
    */
   Argonne = 'argonne',
 }
-export default Maps
+export default Maps;

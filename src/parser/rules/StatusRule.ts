@@ -18,6 +18,7 @@ const StatusRule: LogParserRule<unknown> = {
       args.groups?.Players_Human as string
     );
     response.Players_Bots = parseInt(args.groups?.Players_Bots as string);
+    response.Players_Total = response.Players_Bots + response.Players_Human;
     response.Players_Spectator = parseInt(
       args.groups?.Players_Spectator as string
     );
