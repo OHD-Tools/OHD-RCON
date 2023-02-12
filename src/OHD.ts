@@ -358,6 +358,12 @@ export default class OHD {
     // Non command
     //TODO
   }
+  /**
+   * Disconnect the client.
+   */
+  public disconnect(): void {
+    this._conn.disconnect();
+  }
   protected _parseResponse(res: string): unknown {
     const data: string = res?.replaceAll('\\n', '\n');
 
