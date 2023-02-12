@@ -4,7 +4,9 @@ import events from 'events'
 import net from 'net'
 import ServerStatus from './definitions/ServerStatus';
 import MapQuery, { MapQueryProps } from './MapQuery';
-import Player from './Player';
+import RCONParser from './parser/RCONParser';
+import PlayerKicked from './definitions/PlayerKicked';
+import PlayerBanned from './definitions/PlayerBanned';
 
 enum PacketType {
   COMMAND = 0x02,
@@ -166,11 +168,13 @@ export default class OHD {
    * Rejects if an error occurs when connecting.
    */
   public onReady: Promise<null>
+  public rconParser: RCONParser
   protected messageID = 1
   protected _conn!: Rcon
   protected _isAuthorized!: boolean
   protected _responsePromiseQueue!: Map<number, ResponsePromiseQueueObject>
   constructor(ip: string, port: number, password: string) {
+    this.rconParser = new RCONParser(this)
     Object.defineProperty(this, '_isAuthorized', { enumerable: false, value: false });
     Object.defineProperty(this, '_responsePromiseQueue', { enumerable: false, value: new Map });
     Object.defineProperty(this, '_onResponse', { enumerable: false, value: this._onResponse.bind(this) });
@@ -202,51 +206,57 @@ export default class OHD {
    * Get the Server Status.
    */
   public status(): Promise<ServerStatus> {
-    return this.send('status') as Promise<ServerStatus>;
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return this.send('status').then((status: any) => {
+      return {
+        ...status.status,
+        Players: status.players
+      }
+    })
   }
   /**
    * Add `amount` bots to the server.
    */
-  public addBots(amount = 1): Promise<unknown> {
-    return this.send(`addBots ${amount}`);
+  public addBots(amount = 1): Promise<void> {
+    return this.send(`addBots ${amount}`) as Promise<void>;
   }
   /**
    * Add a Named Bot to the server.
    */
-  public addNamedBot(name = 'Chuck Norris'): Promise<unknown> {
-    return this.send(`addNamedBot ${name}`);
+  public addNamedBot(name = 'Chuck Norris'): Promise<void> {
+    return this.send(`addNamedBot ${name}`) as Promise<void>;
   }
   /**
    * Remove all bots from the server.
    */
-  public removeAllBots(): Promise<unknown> {
-    return this.send('removeAllBots');
+  public removeAllBots(): Promise<void> {
+    return this.send('removeAllBots') as Promise<void>;
   }
   /**
    * Kick a `Player` from the server by Username
    */
-  public kick(name: string, reason = 'You have been Kicked'): Promise<unknown> {
-    return this.send(`kick "${name}" "${reason}"`);
+  public kick(name: string, reason = 'You have been Kicked'): Promise<PlayerKicked> {
+    return this.send(`kick "${name}" "${reason}"`) as Promise<PlayerKicked>;
   }
   /**
    * Kick a `Player` from the server by PlayerID
    */
-  public kickId(id: number, reason = 'You have been Kicked'): Promise<unknown> {
-    return this.send(`kickId ${id} "${reason}"`);
+  public kickId(id: number, reason = 'You have been Kicked'): Promise<PlayerKicked> {
+    return this.send(`kickId ${id} "${reason}"`) as Promise<PlayerKicked>;
   }
   /**
    * Ban a `Player` from the server by Username.
    */
-  public ban(name: string, /** Duration in Seconds*/ duration = 0, reason?: string,): Promise<unknown> {
+  public ban(name: string, /** Duration in Seconds*/ duration = 0, reason?: string,): Promise<PlayerBanned> {
     if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`
-    return this.send(`ban "${name}" "${reason}" ${duration}`);
+    return this.send(`ban "${name}" "${reason}" ${duration}`) as  Promise<PlayerBanned>;
   }
   /**
    * Ban a `Player` from the server by PlayerID.
    */
-  public banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string): Promise<unknown> {
+  public banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string):  Promise<PlayerBanned> {
     if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`
-    return this.send(`banId ${id} "${reason}" ${duration}`);
+    return this.send(`banId ${id} "${reason}" ${duration}`) as  Promise<PlayerBanned>;
   }
   /**
    * Create a new MapQuery Object to use with `serverTravel()`.
@@ -349,68 +359,17 @@ export default class OHD {
     //TODO
   }
   protected _parseResponse(res: string): unknown {
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response: any = {
-      success: true,
-      //eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: {} as any
-    };
     const data: string = res?.replaceAll('\\n', '\n');
 
     if (data == null || data?.trim?.() == '') return null;
-    let handled = false;
     //TODO Seperate Out into Modules
-    if (!handled) {
-      /**Example messages for Kicking
-       * "Player with name 'Spider' was successfully kicked from the server with reason 'This is a Test'"
-       * "Player with id number '415' was successfully kicked from the server with reason 'This'"
-       * "Failed to kick specified player by id number with reason 'This', no player with the id number '999' exists or the kick operation has failed!"
-       * "Failed to kick specified player by name with reason 'This is a Test', no player with the name 'GenericPlayer' exists or the kick operation has failed!"
-       */
-    }
-    if (!handled) {
-      const matchStatusServerRegex =
-        /Server Name: (?<Server_Name>.*)\nLocal Address: (?<Local_Address>.*)\nMap: (?<Map>.*)\nGame Mode: (?<Game_Mode>.*) \[(?<Game_Mode_Class>.*)\]\nIs In Hibernation Mode: (?<Hybernation>.*)\nMatch State: (?<Match_State>.*)\nSession State: (?<Session_State>.*)\n(?<Players_Human>\d*) Human Players, (?<Players_Bots>\d*) Bots, (?<Players_Spectator>\d*) Spectators/;
-      const matchStatusPlayerListRegex =
-        /(?<Player_ID>\d+)\t(?<Name>.+)\s+(?<Steam64>BOT|(?:765\d{14}))/gm;
-      const statusServerInfo = data.match(matchStatusServerRegex);
-      if (statusServerInfo != null) {
-        handled = true;
-        response.data.Server_Name = statusServerInfo.groups?.Server_Name;
-        response.data.Local_Address = statusServerInfo.groups?.Local_Address;
-        response.data.Map = statusServerInfo.groups?.Map;
-        response.data.Game_Mode = statusServerInfo.groups?.Game_Mode;
-        response.data.Game_Mode_Class = statusServerInfo.groups?.Game_Mode_Class;
-        response.data.Hybernation = statusServerInfo.groups?.Hybernation == 'Yes';
-        response.data.Match_State = statusServerInfo.groups?.Match_State;
-        response.data.Session_State = statusServerInfo.groups?.Session_State;
-        response.data.Players_Human = parseInt(
-          statusServerInfo.groups?.Players_Human as string
-        );
-        response.data.Players_Bots = parseInt(statusServerInfo.groups?.Players_Bots as string);
-        response.data.Players_Spectator = parseInt(
-          statusServerInfo.groups?.Players_Spectator as string
-        );
-        const statusPlayerList = data.matchAll(matchStatusPlayerListRegex);
-
-        response.data.Players = [];
-        if (statusPlayerList) {
-          for (const match of statusPlayerList) {
-            response.data.Players.push(
-              new Player(this, {
-                id: parseInt(match.groups?.Player_ID as string),
-                name: match.groups?.Name?.trim() as string,
-                steam64:
-                  match.groups?.Steam64 != 'BOT' ? match.groups?.Steam64 as string : null,
-              })
-            );
-          }
-        }
-      }
-    }
-
-    if (!handled) return null;
-    return response;
+    /**Example messages for Kicking
+     * "Player with name 'Spider' was successfully kicked from the server with reason 'This is a Test'"
+     * "Player with id number '415' was successfully kicked from the server with reason 'This'"
+     * "Failed to kick specified player by id number with reason 'This', no player with the id number '999' exists or the kick operation has failed!"
+     * "Failed to kick specified player by name with reason 'This is a Test', no player with the name 'GenericPlayer' exists or the kick operation has failed!"
+     */
+    return this.rconParser.parse(data)
   }
   protected _onError(str: string): void {
     console.error(str);

@@ -5,7 +5,7 @@ export default interface ServerStatus {
   Map: string
   Game_Mode: string
   Game_Mode_Class: string
-  Hybernation: string
+  Hybernation: boolean
   Match_State: string
   Session_State: string
   Players_Human: number
