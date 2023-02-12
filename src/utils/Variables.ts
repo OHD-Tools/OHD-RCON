@@ -1,6 +1,6 @@
-import type OHD from './OHD';
-import { Teams } from './Teams';
-import VariableRead from './definitions/VariableRead';
+import type OHD from '../OHD';
+import { Teams } from '../definitions/Teams';
+import VariableRead from '../definitions/VariableRead';
 const noop = () => { }; //eslint-disable-line @typescript-eslint/no-empty-function
 
 interface Readable<T> {

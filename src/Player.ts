@@ -1,5 +1,5 @@
 import type OHD from './OHD';
-import type { Teams } from './Teams';
+import type { Teams } from './definitions/Teams';
 type PlayerProps = {
   id: number
   steam64: string | null
