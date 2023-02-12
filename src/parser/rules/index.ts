@@ -1,3 +1,5 @@
+import PlayerBanFailedRule from './PlayerBanFailedRule';
+import PlayerBannedRule from './PlayerBannedRule';
 import PlayerKickFailedRule from './PlayerKickFailedRule';
 import PlayerKickedRule from './PlayerKickedRule';
 import StatusPlayerRule from './StatusPlayerRule';
@@ -7,5 +9,7 @@ export default [
   StatusPlayerRule,
   StatusRule,
   PlayerKickedRule,
-  PlayerKickFailedRule
+  PlayerKickFailedRule,
+  PlayerBannedRule,
+  PlayerBanFailedRule
 ];
