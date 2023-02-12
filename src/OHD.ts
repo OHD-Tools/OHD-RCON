@@ -5,6 +5,8 @@ import net from 'net'
 import ServerStatus from './definitions/ServerStatus';
 import MapQuery, { MapQueryProps } from './MapQuery';
 import RCONParser from './parser/RCONParser';
+import PlayerKicked from './definitions/PlayerKicked';
+import PlayerBanned from './definitions/PlayerBanned';
 
 enum PacketType {
   COMMAND = 0x02,
@@ -233,28 +235,28 @@ export default class OHD {
   /**
    * Kick a `Player` from the server by Username
    */
-  public kick(name: string, reason = 'You have been Kicked'): Promise<unknown> {
-    return this.send(`kick "${name}" "${reason}"`);
+  public kick(name: string, reason = 'You have been Kicked'): Promise<PlayerKicked> {
+    return this.send(`kick "${name}" "${reason}"`) as Promise<PlayerKicked>;
   }
   /**
    * Kick a `Player` from the server by PlayerID
    */
-  public kickId(id: number, reason = 'You have been Kicked'): Promise<unknown> {
-    return this.send(`kickId ${id} "${reason}"`);
+  public kickId(id: number, reason = 'You have been Kicked'): Promise<PlayerKicked> {
+    return this.send(`kickId ${id} "${reason}"`) as Promise<PlayerKicked>;
   }
   /**
    * Ban a `Player` from the server by Username.
    */
-  public ban(name: string, /** Duration in Seconds*/ duration = 0, reason?: string,): Promise<unknown> {
+  public ban(name: string, /** Duration in Seconds*/ duration = 0, reason?: string,): Promise<PlayerBanned> {
     if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`
-    return this.send(`ban "${name}" "${reason}" ${duration}`);
+    return this.send(`ban "${name}" "${reason}" ${duration}`) as  Promise<PlayerBanned>;
   }
   /**
    * Ban a `Player` from the server by PlayerID.
    */
-  public banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string): Promise<unknown> {
+  public banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string):  Promise<PlayerBanned> {
     if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`
-    return this.send(`banId ${id} "${reason}" ${duration}`);
+    return this.send(`banId ${id} "${reason}" ${duration}`) as  Promise<PlayerBanned>;
   }
   /**
    * Create a new MapQuery Object to use with `serverTravel()`.
