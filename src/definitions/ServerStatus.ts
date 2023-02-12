@@ -10,6 +10,7 @@ export default interface ServerStatus {
   Session_State: string
   Players_Human: number
   Players_Bots: number
+  Players_Total: number
   Players_Spectator: number
   Players: Player[]
 }
