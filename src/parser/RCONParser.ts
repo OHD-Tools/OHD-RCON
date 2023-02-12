@@ -20,6 +20,14 @@ export default class RCONParser {
         match = input.match(rule.regex);
       }
       if (!match) continue;
+      if (rule.matchAll){
+        try {
+          let items = Array.from(match as IterableIterator<RegExpMatchArray>).length
+          if (items === 0) continue
+        } catch (error) {
+          // Ignore
+        }
+      }
       //eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res = rule.format(match as any, this.controller);
       if (rule.multiProperty) {
