@@ -348,6 +348,12 @@ export default class OHD {
     // Non command
     //TODO
   }
+  /**
+   * Disconnect the client.
+   */
+  public disconnect(): void {
+    this._conn.disconnect();
+  }
   protected _parseResponse(res: string): unknown {
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = {
