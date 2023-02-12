@@ -366,7 +366,6 @@ export default class OHD {
     return this.send(`autoassignhuman ${team}`);
   }
   /**
->>>>>>> Stashed changes
    * Change the current Level.
    */
   public serverTravel(map: MapQuery | string): Promise<unknown> {
