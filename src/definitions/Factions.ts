@@ -18,6 +18,5 @@ enum Factions {
   BP_OOFactionInfo_Wehrmact     = 'BP_OOFactionInfo_Wehrmact',
   BP_RSFactionInfo_NVA          = 'BP_RSFactionInfo_NVA',
   BP_RSFactionInfo_USArmy       = 'BP_RSFactionInfo_USArmy',
-
 }
 export default Factions;

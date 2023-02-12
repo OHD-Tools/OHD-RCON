@@ -3,27 +3,27 @@ import { default as rules } from './rules';
 import type OHD from '../OHD';
 export default class RCONParser {
   rules: RCONParserRule<unknown>[] = [...rules];
-  controller: OHD
+  controller: OHD;
   constructor(controller: OHD) {
-    this.controller = controller
+    this.controller = controller;
     //Do Thing
   }
 
   public parse(input: string): unknown {
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let response: any = undefined
+    let response: any = undefined;
     for (const rule of this.rules) {
-      let match: IterableIterator<RegExpMatchArray> | RegExpMatchArray | null
+      let match: IterableIterator<RegExpMatchArray> | RegExpMatchArray | null;
       if (rule.matchAll) {
-        match = input.matchAll(rule.regex)
+        match = input.matchAll(rule.regex);
       } else {
         match = input.match(rule.regex);
       }
       if (!match) continue;
       if (rule.matchAll){
         try {
-          let items = Array.from(match as IterableIterator<RegExpMatchArray>).length
-          if (items === 0) continue
+          const items = Array.from(match as IterableIterator<RegExpMatchArray>).length;
+          if (items === 0) continue;
         } catch (error) {
           // Ignore
         }
@@ -32,13 +32,13 @@ export default class RCONParser {
       const res = rule.format(match as any, this.controller);
       if (rule.multiProperty) {
         if (response == undefined) {
-          response = {}
+          response = {};
         }
-        Reflect.set(response, rule.multiProperty, res)
-        continue
+        Reflect.set(response, rule.multiProperty, res);
+        continue;
       }
       response = res;
-      break
+      break;
     }
     return response;
   }

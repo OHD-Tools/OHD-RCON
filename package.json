@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "build": "npx tsc",
-    "lint": "npx eslint ./src/* --fix",
+    "lint": "npx eslint ./src/ --fix",
     "document": "npx typedoc ./src/index.ts"
   },
   "keywords": [

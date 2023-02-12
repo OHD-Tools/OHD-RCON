@@ -1,30 +1,16 @@
 import type OHD from '../OHD';
-import { Teams } from '../definitions/Teams';
+import { ServerVariables } from '../definitions/ServerVariables';
 import VariableRead from '../definitions/VariableRead';
 const noop = () => { }; //eslint-disable-line @typescript-eslint/no-empty-function
 
-interface Readable<T> {
+export interface Readable<T> {
   read: () => Promise<T>
   write: (newValue: T) => Promise<T>
-}
-export interface OHDVariables {
-  Game: {
-    FriendlyFire: Readable<'0' | '1'>;
-    AutoBalanceTeamsOverride: Readable<'0' | '1'>;
-    AutoAssignHumanTeam: Readable<'0' | Teams>;
-  }
-  Bot: {
-    Autofill: Readable<'0' | '1'>;
-  }
-  Net: {
-    MinPlayersOverride: Readable<`${number}`>;
-    MaxPlayersOverride: Readable<`${number}`>;
-  }
 }
 
 export function setupVariableProxy(controller: OHD) {
   const path: (string | symbol)[] = [];
-  const handler: ProxyHandler<OHDVariables> = {
+  const handler: ProxyHandler<ServerVariables> = {
     get(target, name) {
       if (name == 'read') {
         return async () => {
@@ -39,7 +25,7 @@ export function setupVariableProxy(controller: OHD) {
       }
       path.push(name);
 
-      return new Proxy(noop as unknown as OHDVariables, handler);
+      return new Proxy(noop as unknown as ServerVariables, handler);
     },
     set(target, name, newValue) {
       path.push(name);
@@ -47,5 +33,5 @@ export function setupVariableProxy(controller: OHD) {
       return true;
     }
   };
-  return new Proxy(noop as unknown as OHDVariables, handler);
+  return new Proxy(noop as unknown as ServerVariables, handler);
 }

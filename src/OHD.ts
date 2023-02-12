@@ -448,13 +448,6 @@ export default class OHD {
   protected _parseResponse(res: string): unknown {
     const data: string = res?.replaceAll('\\n', '\n');
     if (data == null || data?.trim?.() == '') return null;
-    //TODO Seperate Out into Modules
-    /**Example messages for Kicking
-     * "Player with name 'Spider' was successfully kicked from the server with reason 'This is a Test'"
-     * "Player with id number '415' was successfully kicked from the server with reason 'This'"
-     * "Failed to kick specified player by id number with reason 'This', no player with the id number '999' exists or the kick operation has failed!"
-     * "Failed to kick specified player by name with reason 'This is a Test', no player with the name 'GenericPlayer' exists or the kick operation has failed!"
-     */
     return this.rconParser.parse(data);
   }
   protected _onError(str: string): void {
@@ -464,5 +457,3 @@ export default class OHD {
     //TODO: onEnd
   }
 }
-// /(?<Player_ID>\d+)     (?<Name>.+)(?<Steam64>BOT|(?:765\d{14}))/gm
-// /Server Name: (?<Server_Name>.*)\nLocal Address: (?<Local_Address>.*)\nMap: (?<Map>.*)\nGame Mode: (?<Game_Mode>.*)\[(?<Game_Mode_Class>.*)\]\nIs In Hibernation Mode: (?<Hybernation>.*)\nMatch State: (?<Match_State>.*)\nSession State: (?<Session_State>.*)\n(?<Players_Human>\d*) Human Players, (?<Players_Bots>\d*) Bots, (?<Players_Spectator>\d*) Spectators/

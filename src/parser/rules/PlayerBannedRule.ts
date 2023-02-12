@@ -7,15 +7,15 @@ const PlayerBannedRule: LogParserRule<PlayerBanned> = {
   format: (oargs) => {
     const args = oargs as RegExpMatchArray;
     const response: Partial<PlayerBanned> = {} as PlayerBanned;
-    response.success = true
-    response.reason = args.groups?.reason
+    response.success = true;
+    response.reason = args.groups?.reason;
     if (args.groups?.type == 'name') {
-      response.name = args.groups?.identifier
+      response.name = args.groups?.identifier;
     } else {
-      response.id = parseInt(args.groups?.identifier as string)
+      response.id = parseInt(args.groups?.identifier as string);
     }
     response.length = parseFloat(args.groups?.length as string);
-    return response as PlayerBanned
+    return response as PlayerBanned;
   },
-}
-export default PlayerBannedRule
+};
+export default PlayerBannedRule;

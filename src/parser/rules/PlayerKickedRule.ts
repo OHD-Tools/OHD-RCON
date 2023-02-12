@@ -6,14 +6,14 @@ const PlayerKickedRule: LogParserRule<PlayerKicked> = {
   format: (oargs) => {
     const args = oargs as RegExpMatchArray;
     const response: Partial<PlayerKicked> = {} as PlayerKicked;
-    response.success = true
-    response.reason = args.groups?.reason
+    response.success = true;
+    response.reason = args.groups?.reason;
     if (args.groups?.type == 'name') {
-      response.name = args.groups?.identifier
+      response.name = args.groups?.identifier;
     } else {
-      response.id = parseInt(args.groups?.identifier as string)
+      response.id = parseInt(args.groups?.identifier as string);
     }
-    return response as PlayerKicked
+    return response as PlayerKicked;
   },
-}
-export default PlayerKickedRule
+};
+export default PlayerKickedRule;
