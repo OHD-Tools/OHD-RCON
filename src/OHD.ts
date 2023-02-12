@@ -3,12 +3,12 @@ import { Socket } from 'net';
 import events from 'events';
 import net from 'net';
 import ServerStatus from './definitions/ServerStatus';
-import MapQuery, { MapQueryProps } from './MapQuery';
+import MapQuery, { MapQueryProps } from './utils/MapQuery';
 import RCONParser from './parser/RCONParser';
 import PlayerKicked from './definitions/PlayerKicked';
 import PlayerBanned from './definitions/PlayerBanned';
-import { Teams } from './Teams';
-import { setupVariableProxy } from './Variables';
+import { Teams } from './definitions/Teams';
+import { setupVariableProxy } from './utils/Variables';
 
 enum PacketType {
   COMMAND = 0x02,
