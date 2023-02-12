@@ -1,4 +1,5 @@
 import type OHD from './OHD';
+import type { Teams } from './Teams';
 type PlayerProps = {
   id: number
   steam64: string | null
@@ -48,7 +49,7 @@ export default class Player {
     return this._controller.banId(this.id, duration, reason);
   }
   /**Set the team of the current `Player` */
-  setTeam(teamId: 0 | 1): Promise<unknown> {
+  setTeam(teamId: 0 | 1 | Teams): Promise<unknown> {
     if (!this.hasController) return this.controllerReject();
     return this._controller.forceTeamId(this.id, teamId);
   }
