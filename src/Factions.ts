@@ -20,4 +20,4 @@ enum Factions {
   BP_RSFactionInfo_USArmy       = 'BP_RSFactionInfo_USArmy',
 
 }
-export default Factions
+export default Factions;
