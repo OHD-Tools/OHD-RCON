@@ -3,7 +3,7 @@ import ServerStatus from '../../definitions/ServerStatus';
 
 const StatusRule: LogParserRule<unknown> = {
   regex: /Server Name: (?<Server_Name>.*)\nLocal Address: (?<Local_Address>.*)\nMap: (?<Map>.*)\nGame Mode: (?<Game_Mode>.*) \[(?<Game_Mode_Class>.*)\]\nIs In Hibernation Mode: (?<Hybernation>.*)\nMatch State: (?<Match_State>.*)\nSession State: (?<Session_State>.*)\n(?<Players_Human>\d*) Human Players, (?<Players_Bots>\d*) Bots, (?<Players_Spectator>\d*) Spectators/,
-  format: (oargs, controller) => {
+  format: (oargs) => {
     const args = oargs as RegExpMatchArray;
     const response: Partial<ServerStatus> = {} as ServerStatus;
     response.Server_Name = args.groups?.Server_Name;

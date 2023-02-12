@@ -1,5 +1,3 @@
-import path from 'path';
-import fs from 'fs'
 import RCONParserRule from '../definitions/RCONParserRule';
 import { default as rules } from './rules';
 import type OHD from '../OHD';

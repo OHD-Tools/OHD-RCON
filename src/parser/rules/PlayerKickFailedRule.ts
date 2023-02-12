@@ -3,7 +3,7 @@ import LogParserRule from '../../definitions/RCONParserRule';
 
 const PlayerKickFailedRule: LogParserRule<PlayerKicked> = {
   regex: /^Failed to kick specified player by (id number|name) with reason '(?<reason>.*)', no player with the (?<type>name|id number) '(?<identifier>).*' exists or the kick operation has failed!/,
-  format: (oargs, controller) => {
+  format: (oargs) => {
     const args = oargs as RegExpMatchArray;
     const response: Partial<PlayerKicked> = {} as PlayerKicked;
     response.success = false
