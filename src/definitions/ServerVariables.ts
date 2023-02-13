@@ -13,6 +13,7 @@ export interface ServerVariables {
   Net: {
     MinPlayersOverride: Readable<`${number}`>;
     MaxPlayersOverride: Readable<`${number}`>;
+    AllowServerHibernation: Readable<'0' | '1'>;
   }
   HD: {
     Game: {
