@@ -300,7 +300,7 @@ export default class OHD {
    * @depricated use OHD.variables
    */
   public botAutofill(enabled: boolean | 0 | 1): Promise<VariableChanged> {
-    return this.variables.Bot.Autofill.write( enabled ? '1' : '0');
+    return this.variables.Bot.Autofill.write(enabled ? '1' : '0');
   }
   /**
    * Kick a `Player` from the server by Username
