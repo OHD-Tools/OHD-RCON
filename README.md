@@ -30,17 +30,22 @@ import { OHD } from '@afocommunity/ohd-rcon';
 const myServer = new OHD('127.0.0.1', 8000, 'mypassword');
 
 function scanPlayersForNaughtyWords() {
-  myServer.status().then(status => {
-    status.Players.filter(player=>player.name.includes('<insert bad word here>'))
-      .forEach(player => {
-        //Args: Length in seconds, Reason.
-        player.ban(0, 'Bad Words in Name');
-      });
-  })
+  
 }
 
 myServer.onReady.then(() => {
-  setInterval(scanPlayersForNaughtyWords, 10000)
+  myServer.variables.HD.Game.DisableKitRestrictionsOverride.write('1');
+  myServer.variables.HD.Game.MinRespawnDelayOverride.write('0.00');
+  
+  setInterval(()=>{
+    myServer.status().then(status => {
+      status.Players.filter(player=>player.name.includes('<insert bad word here>'))
+        .forEach(player => {
+          //Args: Length in seconds, Reason.
+          player.ban(0, 'Bad Words in Name');
+        });
+    })
+  }, 10000)
 });
 
 ```
