@@ -9,7 +9,7 @@ export interface Readable<T> {
   write: (newValue: T) => Promise<VariableChanged>
 }
 
-export function setupVariableProxy<T extends Object>(controller: OHD): T {
+export function setupVariableProxy<T extends object>(controller: OHD): T {
   const path: (string | symbol)[] = [];
   const handler: ProxyHandler<T> = {
     get(target, name) {
