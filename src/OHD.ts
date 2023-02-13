@@ -374,6 +374,9 @@ export default class OHD {
   public autoAssignHuman(team: -1 | 0 | 1 | Teams = -1): Promise<unknown> {
     return this.send(`autoassignhuman ${team}`);
   }
+  public minRespawnDelay(seconds: number): Promise<unknown> {
+    return this.send(`HD.Game.MinRespawnDelayOverride ${seconds}`);
+  }
   /**
    * Change the current Level.
    */
