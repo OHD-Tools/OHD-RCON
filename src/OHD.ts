@@ -10,6 +10,7 @@ import PlayerBanned from './definitions/PlayerBanned';
 import { Teams } from './definitions/Teams';
 import { setupVariableProxy } from './utils/Variables';
 import { ServerVariables, UnsafeVariables } from './definitions/ServerVariables';
+import VariableChanged from './definitions/VariableChanges';
 
 enum PacketType {
   COMMAND = 0x02,
@@ -267,23 +268,26 @@ export default class OHD {
   }
   /**
    * Set the state of FriendlyFire
+   * @depricated use OHD.variables
    */
-  public friendlyFire(enabled: boolean | 0 | 1): Promise<unknown> {
-    return this.send(`Game.FriendlyFire ${enabled ? 1 : 0}`);
+  public friendlyFire(enabled: boolean | 0 | 1): Promise<VariableChanged> {
+    return this.variables.Game.FriendlyFire.write(enabled ? '1' : '0');
   }
   /**
    * Forces all new players to the specified team. Users can not change to any other team.
    *
    * @note This does not force change existing players team, only new ones
+   * @depricated use OHD.variables
    */
-  public autoAssignHumanTeam(team: -1 | 0 | 1 | Teams): Promise<unknown> {
-    return this.send(`Game.AutoAssignHumanTeam ${team}`);
+  public autoAssignHumanTeam(team: -1 | 0 | 1 | Teams): Promise<VariableChanged> {
+    return this.variables.Game.AutoAssignHumanTeam.write(team.toString() as '0');
   }
   /**
    * Enable/Disable Team Autobalancing
+   * @depricated use OHD.variables
    */
-  public autoBalanceTeamsOverride(enabled: boolean | 0 | 1): Promise<unknown> {
-    return this.send(`Game.AutoBalanceTeamsOverride ${enabled ? 1 : 0}`);
+  public autoBalanceTeamsOverride(enabled: boolean | 0 | 1): Promise<VariableChanged> {
+    return this.variables.Game.AutoBalanceTeamsOverride.write(enabled ? '1' : '0')
   }
   /**
    * Remove all bots from the server.
@@ -291,8 +295,12 @@ export default class OHD {
   public removeAllBots(): Promise<void> {
     return this.send('removeAllBots') as Promise<void>;
   }
-  public botAutofill(enabled: boolean | 0 | 1): Promise<unknown> {
-    return this.send(`Bot.Autofill ${enabled ? 1 : 0}`);
+  /**
+   * Set the bot autofill variable
+   * @depricated use OHD.variables
+   */
+  public botAutofill(enabled: boolean | 0 | 1): Promise<VariableChanged> {
+    return this.variables.Bot.Autofill.write( enabled ? '1' : '0');
   }
   /**
    * Kick a `Player` from the server by Username
@@ -370,12 +378,17 @@ export default class OHD {
    *  0: Opfor
    *
    *  1: Blufor
+   * @depricated use OHD.variables
    */
-  public autoAssignHuman(team: -1 | 0 | 1 | Teams = -1): Promise<unknown> {
-    return this.send(`autoassignhuman ${team}`);
+  public autoAssignHuman(team: -1 | 0 | 1 | Teams = -1): Promise<VariableChanged> {
+    return this.variables.Game.AutoAssignHumanTeam.write(team.toString() as '0');
   }
-  public minRespawnDelay(seconds: number): Promise<unknown> {
-    return this.send(`HD.Game.MinRespawnDelayOverride ${seconds}`);
+  /**
+   * Set the respawn delay
+   * @depricated use OHD.variables
+   */
+  public minRespawnDelay(seconds: number): Promise<VariableChanged> {
+    return this.variables.HD.Game.MinRespawnDelayOverride.write(seconds.toString() as '0');
   }
   /**
    * Change the current Level.
