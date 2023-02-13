@@ -1,5 +1,4 @@
 import type OHD from '../OHD';
-import { ServerVariables } from '../definitions/ServerVariables';
 import VariableRead from '../definitions/VariableRead';
 const noop = () => { }; //eslint-disable-line @typescript-eslint/no-empty-function
 
@@ -8,9 +7,9 @@ export interface Readable<T> {
   write: (newValue: T) => Promise<T>
 }
 
-export function setupVariableProxy(controller: OHD) {
+export function setupVariableProxy<T extends Object>(controller: OHD): T {
   const path: (string | symbol)[] = [];
-  const handler: ProxyHandler<ServerVariables> = {
+  const handler: ProxyHandler<T> = {
     get(target, name) {
       if (name == 'read') {
         return async () => {
@@ -25,7 +24,7 @@ export function setupVariableProxy(controller: OHD) {
       }
       path.push(name);
 
-      return new Proxy(noop as unknown as ServerVariables, handler);
+      return new Proxy(noop as unknown as T, handler);
     },
     set(target, name, newValue) {
       path.push(name);
@@ -33,5 +32,5 @@ export function setupVariableProxy(controller: OHD) {
       return true;
     }
   };
-  return new Proxy(noop as unknown as ServerVariables, handler);
+  return new Proxy(noop as unknown as T, handler);
 }

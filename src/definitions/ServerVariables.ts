@@ -14,4 +14,21 @@ export interface ServerVariables {
     MinPlayersOverride: Readable<`${number}`>;
     MaxPlayersOverride: Readable<`${number}`>;
   }
+  HD: {
+    Game: {
+      MinRespawnDelayOverride: Readable<`${number}`>;
+      DisableKitRestrictionsOverride: Readable<'0' | '1'>;
+    }
+    CP: {
+      MinPlayersToCaptureOverride: Readable<`${number}`>;
+      EnforceSmallerMinPLayersToCapture: Readable<'0' | '1'>;
+    }
+    AAS: {
+      ActiveRouteOverride: Readable<`${number}`>
+    }
+  }
+}
+export interface UnsafeVariables {
+  [key: string]: Readable<string> & UnsafeVariables
+
 }
