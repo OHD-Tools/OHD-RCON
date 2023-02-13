@@ -28,4 +28,7 @@ export interface ServerVariables {
     }
   }
 }
+export interface UnsafeVariables {
+  [key: string]: Readable<string> & UnsafeVariables
+
 }

@@ -9,6 +9,7 @@ import PlayerKicked from './definitions/PlayerKicked';
 import PlayerBanned from './definitions/PlayerBanned';
 import { Teams } from './definitions/Teams';
 import { setupVariableProxy } from './utils/Variables';
+import { ServerVariables, UnsafeVariables } from './definitions/ServerVariables';
 
 enum PacketType {
   COMMAND = 0x02,
@@ -351,7 +352,15 @@ export default class OHD {
    * Do not ever set an accessor to a variable, always use .read() and .write()
    */
   get variables() {
-    return setupVariableProxy(this);
+    return setupVariableProxy<ServerVariables>(this);
+  }
+  /**
+   * Dot Access Setter for Server Variables.
+   *
+   * Do not ever set an accessor to a variable, always use .read() and .write()
+   */
+  get variablesUnsafe() {
+    return setupVariableProxy<UnsafeVariables>(this);
   }
   /**
    * Set the AutoAssignHuman variable.
@@ -364,6 +373,9 @@ export default class OHD {
    */
   public autoAssignHuman(team: -1 | 0 | 1 | Teams = -1): Promise<unknown> {
     return this.send(`autoassignhuman ${team}`);
+  }
+  public minRespawnDelay(seconds: number): Promise<unknown> {
+    return this.send(`HD.Game.MinRespawnDelayOverride ${seconds}`);
   }
   /**
    * Change the current Level.
