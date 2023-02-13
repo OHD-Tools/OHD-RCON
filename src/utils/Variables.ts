@@ -1,10 +1,12 @@
 import type OHD from '../OHD';
+import VariableChanged from '../definitions/VariableChanges';
 import VariableRead from '../definitions/VariableRead';
 const noop = () => { }; //eslint-disable-line @typescript-eslint/no-empty-function
 
 export interface Readable<T> {
   read: () => Promise<T>
-  write: (newValue: T) => Promise<T>
+  readDetailed: () => Promise<VariableRead>
+  write: (newValue: T) => Promise<VariableChanged>
 }
 
 export function setupVariableProxy<T extends Object>(controller: OHD): T {
@@ -16,10 +18,14 @@ export function setupVariableProxy<T extends Object>(controller: OHD): T {
           return (await controller.send(path.join('.')) as VariableRead).value;
         };
       }
+      if (name == 'readDetailed') {
+        return async (): Promise<VariableRead> => {
+          return (await controller.send(path.join('.')) as VariableRead);
+        };
+      }
       if (name == 'write') {
-        return async (newValue: unknown) => {
-          controller.send(`${path.join('.')} ${newValue}`);
-          return newValue;
+        return async (newValue: unknown): Promise<VariableChanged> => {
+          return controller.send(`${path.join('.')} ${newValue}`) as Promise<VariableChanged>;
         };
       }
       path.push(name);
