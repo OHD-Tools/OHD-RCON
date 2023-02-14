@@ -22,8 +22,10 @@ export default class RCONParser {
       if (!match) continue;
       if (rule.matchAll){
         try {
-          const items = Array.from(match as IterableIterator<RegExpMatchArray>).length;
-          if (items === 0) continue;
+          const items = Array.from(match as IterableIterator<RegExpMatchArray>);
+          if (items.length === 0) continue;
+          //eslint-disable-next-line @typescript-eslint/no-explicit-any
+          match = items as unknown as any
         } catch (error) {
           // Ignore
         }
