@@ -7,7 +7,6 @@ const StatusPlayerRule: LogParserRule<Player[]> = {
     const args = oargs as RegExpMatchArray[];
     const response: Player[] = [];
     for (const match of args) {
-      console.log(match)
       response.push(
         new Player(controller, {
           id: parseInt(match.groups?.Player_ID as string),
