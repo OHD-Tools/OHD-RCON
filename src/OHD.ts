@@ -482,7 +482,3 @@ export default class OHD {
     //TODO: onEnd
   }
 }
-
-const server = new OHD('',0,'')
-
-server.variables.Game.FriendlyFire.write('')
