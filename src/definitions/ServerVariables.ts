@@ -5,7 +5,7 @@ export interface ServerVariables {
   Game: {
     FriendlyFire: Readable<'0' | '1'>;
     AutoBalanceTeamsOverride: Readable<'0' | '1'>;
-    AutoAssignHumanTeam: Readable<'0' | Teams>;
+    AutoAssignHumanTeam: Readable<'-1' | Teams>;
   }
   Bot: {
     Autofill: Readable<'0' | '1'>;
@@ -31,5 +31,7 @@ export interface ServerVariables {
 }
 export interface UnsafeVariables {
   [key: string]: Readable<string> & UnsafeVariables
-
 }
+
+
+

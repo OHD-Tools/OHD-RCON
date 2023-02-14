@@ -280,7 +280,7 @@ export default class OHD {
    * @depricated use OHD.variables
    */
   public autoAssignHumanTeam(team: -1 | 0 | 1 | Teams): Promise<VariableChanged> {
-    return this.variables.Game.AutoAssignHumanTeam.write(team.toString() as '0');
+    return this.variables.Game.AutoAssignHumanTeam.write(team.toString() as '-1');
   }
   /**
    * Enable/Disable Team Autobalancing
@@ -381,7 +381,7 @@ export default class OHD {
    * @depricated use OHD.variables
    */
   public autoAssignHuman(team: -1 | 0 | 1 | Teams = -1): Promise<VariableChanged> {
-    return this.variables.Game.AutoAssignHumanTeam.write(team.toString() as '0');
+    return this.variables.Game.AutoAssignHumanTeam.write(team.toString() as '-1');
   }
   /**
    * Set the respawn delay
