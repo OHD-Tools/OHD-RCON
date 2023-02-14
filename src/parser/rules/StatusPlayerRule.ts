@@ -1,12 +1,13 @@
 import Player from '../../Player';
 import LogParserRule from '../../definitions/RCONParserRule';
 const StatusPlayerRule: LogParserRule<Player[]> = {
-  regex: /(?<Player_ID>\d+)\t(?<Name>.+)\s+(?<Steam64>BOT|(?:765\d{14}))/gm,
+  regex: /(?<Player_ID>\d+)\s+(?<Name>.+)\s+(?<Steam64>BOT|(?:765\d{14}))/mg,
   matchAll: true,
   format: (oargs, controller) => {
-    const args = oargs as IterableIterator<RegExpMatchArray>;
+    const args = oargs as RegExpMatchArray[];
     const response: Player[] = [];
     for (const match of args) {
+      console.log(match)
       response.push(
         new Player(controller, {
           id: parseInt(match.groups?.Player_ID as string),
