@@ -270,8 +270,8 @@ export default class OHD {
    * Set the state of FriendlyFire
    * @depricated use OHD.variables
    */
-  public friendlyFire(enabled: boolean | 0 | 1): Promise<VariableChanged> {
-    return this.variables.Game.FriendlyFire.write(enabled ? '1' : '0');
+  public friendlyFire(enabled: boolean | -1 | 1): Promise<VariableChanged> {
+    return this.variables.Game.FriendlyFire.write(enabled ? '1' : '-1');
   }
   /**
    * Forces all new players to the specified team. Users can not change to any other team.
@@ -286,8 +286,8 @@ export default class OHD {
    * Enable/Disable Team Autobalancing
    * @depricated use OHD.variables
    */
-  public autoBalanceTeamsOverride(enabled: boolean | 0 | 1): Promise<VariableChanged> {
-    return this.variables.Game.AutoBalanceTeamsOverride.write(enabled ? '1' : '0')
+  public autoBalanceTeamsOverride(enabled: boolean | -1 | 1): Promise<VariableChanged> {
+    return this.variables.Game.AutoBalanceTeamsOverride.write(enabled ? '1' : '-1')
   }
   /**
    * Remove all bots from the server.
@@ -299,8 +299,8 @@ export default class OHD {
    * Set the bot autofill variable
    * @depricated use OHD.variables
    */
-  public botAutofill(enabled: boolean | 0 | 1): Promise<VariableChanged> {
-    return this.variables.Bot.Autofill.write(enabled ? '1' : '0');
+  public botAutofill(enabled: boolean | -1 | 1): Promise<VariableChanged> {
+    return this.variables.Bot.Autofill.write(enabled ? '1' : '-1');
   }
   /**
    * Kick a `Player` from the server by Username
