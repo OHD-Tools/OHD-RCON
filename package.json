@@ -1,6 +1,6 @@
 {
   "name": "@afocommunity/ohd-rcon",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "type": "commonjs",
