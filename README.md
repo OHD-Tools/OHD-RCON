@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/.github/assets/logo.png" />
+  <img src="https://github.com/afocommunity/OHD-RCON/raw/main/.github/assets/logo.png" />
 </p>
 
 # Operation: Harsh Doorstop RCON Interface
