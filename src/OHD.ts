@@ -224,6 +224,9 @@ export default class OHD {
         return this.onReady
       }
     });
+    this.onReady.then(() => {
+      this._events.emit('READY')
+    })
     if (!options?.disableAutoStatus) {
       const getStatus = (() => {
         this.status().then(status => {
@@ -240,6 +243,7 @@ export default class OHD {
     }
   }
 
+  public on(event: 'READY', cb: () => void): EventEmitter
   public on(event: 'PLAYER_JOINED', cb: (player: Player) => void): EventEmitter
   public on(event: 'PLAYER_LEFT', cb: (player: Player) => void): EventEmitter
   public on(event: Parameters<EventEmitter['on']>[0], cb: Parameters<EventEmitter['on']>[1]): EventEmitter {
