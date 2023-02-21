@@ -11,6 +11,7 @@ import { Teams } from './definitions/Teams';
 import { setupVariableProxy } from './utils/Variables';
 import { ServerVariables, UnsafeVariables } from './definitions/ServerVariables';
 import VariableChanged from './definitions/VariableChanges';
+import Player from './Player';
 
 enum PacketType {
   COMMAND = 0x02,
@@ -163,6 +164,9 @@ type ResponsePromiseQueueObject = {
   timeOut: NodeJS.Timeout;
 }
 
+type OHDOptions = {
+  disableAutoStatus: boolean
+}
 
 /**
  * Primary Interface Object for OHD servers.
@@ -171,21 +175,30 @@ export default class OHD {
   /**
    * Rejects if an error occurs when connecting.
    */
-  public onReady: Promise<null>;
-  public rconParser: RCONParser;
-  protected messageID = 1;
+  public onReady!: Promise<null>;
+  public rconParser!: RCONParser;
+  public players: Map<number, Player> = new Map
+  public serverStatus: Omit<ServerStatus, 'Players'> = {} as Omit<ServerStatus, 'Players'>
+  protected messageID!: number;
   protected _conn!: Rcon;
   protected _isAuthorized!: boolean;
   protected _responsePromiseQueue!: Map<number, ResponsePromiseQueueObject>;
-  constructor(ip: string, port: number, password: string) {
-    this.rconParser = new RCONParser(this);
+  /**Reconnect to the client */
+  public reconnect!: () => Promise<unknown>
+  public _events!: EventEmitter
+  constructor(ip: string, port: number, password: string, options?: OHDOptions) {
     Object.defineProperty(this, '_isAuthorized', { enumerable: false, value: false });
+    Object.defineProperty(this, 'messageID', { enumerable: false, value: 1 });
+    Object.defineProperty(this, '_events', { enumerable: false, value: new EventEmitter });
     Object.defineProperty(this, '_responsePromiseQueue', { enumerable: false, value: new Map });
+    Object.defineProperty(this, '_updateServerStatus', { enumerable: false, value: this._updateServerStatus.bind(this) });
+    Object.defineProperty(this, 'rconParser', { enumerable: false, value: new RCONParser(this) });
     Object.defineProperty(this, '_onResponse', { enumerable: false, value: this._onResponse.bind(this) });
+    Object.defineProperty(this, '_updatePlayers', { enumerable: false, value: this._updatePlayers.bind(this) });
     Object.defineProperty(this, '_onError', { enumerable: false, value: this._onError.bind(this) });
     Object.defineProperty(this, '_onEnd', { enumerable: false, value: this.onEnd.bind(this) });
     Object.defineProperty(this, '_conn', { enumerable: false, value: new Rcon(ip, port, password) });
-    this.onReady = new Promise((res, rej) => {
+    const executor = (res: (val: null) => void, rej: (val: unknown) => void) => {
       let handled = false;
       this._conn.once('error', (err) => {
         if (handled) return;
@@ -197,13 +210,64 @@ export default class OHD {
         handled = true;
         res(null);
       });
-    });
+      this._conn.connect();
+    };
     this._conn
       .on('response', this._onResponse)
       .on('error', this._onError)
       .on('end', this.onEnd);
 
-    this._conn.connect();
+    Object.defineProperty(this, 'onReady', { enumerable: false, value: new Promise<null>(executor) });
+    Object.defineProperty(this, 'reconnect', {
+      enumerable: false, value: () => {
+        Object.defineProperty(this, 'onReady', { enumerable: false, value: new Promise<null>(executor) });
+        return this.onReady
+      }
+    });
+    if (!options?.disableAutoStatus) {
+      const getStatus = (() => {
+        this.status().then(status => {
+          if (status.Players != null) this._updatePlayers(new Map(status.Players.map((player) => [player.id, player])))
+          this._updateServerStatus(status)
+        })
+      }).bind(this)
+      this.onReady.then(() => {
+        getStatus();
+        setInterval(getStatus, 8000)
+      }).catch(() => {
+        //OOPS
+      })
+    }
+  }
+
+  public on(event: 'PLAYER_JOINED', cb: (player: Player) => void): EventEmitter
+  public on(event: 'PLAYER_LEFT', cb: (player: Player) => void): EventEmitter
+  public on(event: Parameters<EventEmitter['on']>[0], cb: Parameters<EventEmitter['on']>[1]): EventEmitter {
+    return this._events.on(event, cb);
+  }
+
+  public removeListener(event: Parameters<EventEmitter['removeListener']>[0], cb: Parameters<EventEmitter['removeListener']>[1]): EventEmitter {
+    return this._events.removeListener(event, cb);
+  }
+  protected _updateServerStatus(status: ServerStatus) {
+    for (const prop in status) {
+      if (prop == 'Players') continue
+      Reflect.set(this.serverStatus, prop, Reflect.get(status, prop))
+    }
+  }
+  protected _updatePlayers(players: Map<number, Player>) {
+    for (const [id, player] of this.players) {
+      if (!players.has(id)) {
+        this._events.emit('PLAYER_LEFT', player)
+        this.players.delete(id)
+      }
+    }
+    for (const [id, player] of players) {
+      if (!this.players.has(id)) {
+        this._events.emit('PLAYER_JOINED', player)
+        this.players.set(id, player)
+      }
+    }
   }
 
   /**
@@ -468,9 +532,7 @@ export default class OHD {
    * Disconnect the client.
    */
   public disconnect(): void {
-    this.send('quit').then(() => {
-      this._conn.disconnect();
-    })
+    this._conn.disconnect();
   }
   protected _parseResponse(res: string): unknown {
     const data: string = res?.replaceAll('\\n', '\n');
