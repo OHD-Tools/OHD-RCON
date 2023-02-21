@@ -37,10 +37,8 @@ import { OHD } from '@afocommunity/ohd-rcon';
 const myServer = new OHD('127.0.0.1', 8000, 'mypassword');
 
 myServer.on('PLAYER_JOINED', (player) => {
-  if (!player.isBot) {
-    if (player.name.includes('Naughty Word')) {
-      player.ban(0, 'Bad Words in Name');
-    }
+  if (!player.isBot && player.name.includes('Naughty Word')) {
+    player.ban(0, 'Bad Words in Name');
   }
 });
 
@@ -50,7 +48,10 @@ myServer.on('READY', () => {
 });
 // Alternatively
 myServer.onReady.then(() => {
-  let restrictions = myServer.variables.HD.Game.DisableKitRestrictionsOverride.read();
-  let respawnDelayInfo = myServer.variables.HD.Game.MinRespawnDelayOverride.readDetailed();
+  let restrictions =
+    myServer.variables.HD.Game.DisableKitRestrictionsOverride.read();
+    
+  let respawnDelayInfo =
+    myServer.variables.HD.Game.MinRespawnDelayOverride.readDetailed();
 });
 ```
