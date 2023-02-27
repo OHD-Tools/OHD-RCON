@@ -53,20 +53,27 @@ class Rcon extends EventEmitter {
     this._tcpSocket.write(buf.toString('binary'), 'binary');
   }
   connect(): void {
-    this._tcpSocket = net.createConnection(this.port, this.host);
-    this._tcpSocket
-      .on('data', ((data: Buffer): void => {
-        this._tcpSocketOnData(data);
-      }).bind(this))
-      .on('connect', ((): void => {
-        this.socketOnConnect();
-      }).bind(this))
-      .on('error', ((err: Error): void => {
-        this.emit('error', err);
-      }).bind(this))
-      .on('end', ((): void => {
-        this.socketOnEnd();
-      }).bind(this));
+    try {
+      this._tcpSocket = net.createConnection(this.port, this.host);
+      this._tcpSocket
+        .on('data', ((data: Buffer): void => {
+          this._tcpSocketOnData(data);
+        }).bind(this));
+      this._tcpSocket
+        .on('connect', ((): void => {
+          this.socketOnConnect();
+        }).bind(this));
+      this._tcpSocket
+        .on('error', ((err: Error): void => {
+          this.emit('error', err);
+        }).bind(this));
+      this._tcpSocket
+        .on('end', ((): void => {
+          this.socketOnEnd();
+        }).bind(this));
+    } catch (error) {
+      this.emit('error', error)
+    }
   }
   send(data: string, cmd: number, id = 0x0012d4a6) {
     cmd = cmd || PacketType.COMMAND;
@@ -227,6 +234,9 @@ export default class OHD {
     this.onReady.then(() => {
       this._events.emit('READY')
     })
+      .catch((err) => {
+        this._events.emit('error', err)
+      })
     if (!options?.disableAutoStatus) {
       const getStatus = (() => {
         this.status().then(status => {
@@ -241,6 +251,9 @@ export default class OHD {
         //OOPS
       })
     }
+    this._events.on('error', ()=>{
+      //Handle Error. Hookable
+    })
   }
 
   public on(event: 'READY', cb: () => void): EventEmitter
@@ -544,7 +557,7 @@ export default class OHD {
     return this.rconParser.parse(data);
   }
   protected _onError(str: string): void {
-    console.error(str);
+    //Handle Error. Hookable
   }
   protected onEnd(): void {
     //TODO: onEnd
