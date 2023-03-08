@@ -190,6 +190,7 @@ export default class OHD {
   protected _conn!: Rcon;
   protected _isAuthorized!: boolean;
   protected _responsePromiseQueue!: Map<number, ResponsePromiseQueueObject>;
+  public debug = false
   /**Reconnect to the client */
   public reconnect!: () => Promise<unknown>
   public _events!: EventEmitter
@@ -556,7 +557,10 @@ export default class OHD {
     if (data == null || data?.trim?.() == '') return null;
     return this.rconParser.parse(data);
   }
-  protected _onError(str: string): void {
+  protected _onError(err: string): void {
+    if (this.debug) {
+      console.error(err)
+    }
     //Handle Error. Hookable
   }
   protected onEnd(): void {
