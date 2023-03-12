@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npx tsc",
     "lint": "npx eslint ./src/ --fix",
-    "document": "npx typedoc ./src/index.ts"
+    "document": "npx typedoc ./src/index.ts --includeVersion"
   },
   "keywords": [
     "RCON",
