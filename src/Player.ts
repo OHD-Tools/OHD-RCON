@@ -1,5 +1,8 @@
+import EventEmitter from 'events';
 import type OHD from './OHD';
 import type { Teams } from './definitions/Teams';
+import PlayerKicked from './definitions/PlayerKicked';
+import PlayerBanned from './definitions/PlayerBanned';
 type PlayerProps = {
   id: number
   steam64: string | null
@@ -12,6 +15,7 @@ export default class Player {
   public id: PlayerProps['id'];
   public steam64: PlayerProps['steam64'];
   public name: PlayerProps['name'];
+  public _events!: EventEmitter;
   protected _controller!: OHD;
 
   constructor(controller: OHD | PlayerProps | null = null, $b: PlayerProps = {} as PlayerProps) {
@@ -22,11 +26,26 @@ export default class Player {
     }
 
     Object.defineProperty(this, '_controller', { value: controller, enumerable: false });
+    Object.defineProperty(this, '_events', { value: new EventEmitter, enumerable: false });
 
     this.id = $b.id;
     this.steam64 = $b.steam64;
     this.name = $b.name;
   }
+
+  public on(event: 'PLAYER_LEFT', cb: () => void): EventEmitter
+  public on(event: 'PLAYER_KICKED', cb: (event: PlayerKicked) => void): EventEmitter
+  public on(event: 'PLAYER_BANNED', cb: (event: PlayerBanned) => void): EventEmitter
+  public on(event: Parameters<EventEmitter['on']>[0], cb: Parameters<EventEmitter['on']>[1]): EventEmitter {
+    return this._events.on(event, cb);
+  }
+
+  public removeListener(event: Parameters<EventEmitter['removeListener']>[0], cb: Parameters<EventEmitter['removeListener']>[1]): EventEmitter {
+    return this._events.removeListener(event, cb);
+  }
+
+
+
   /**Is the player a Bot */
   get isBot(): boolean {
     return this.steam64 == null;

@@ -260,6 +260,8 @@ export default class OHD {
   public on(event: 'READY', cb: () => void): EventEmitter
   public on(event: 'PLAYER_JOINED', cb: (player: Player) => void): EventEmitter
   public on(event: 'PLAYER_LEFT', cb: (player: Player) => void): EventEmitter
+  public on(event: 'PLAYER_KICKED', cb: (player: Player, event: PlayerKicked) => void): EventEmitter
+  public on(event: 'PLAYER_BANNED', cb: (player: Player, event: PlayerBanned) => void): EventEmitter
   public on(event: Parameters<EventEmitter['on']>[0], cb: Parameters<EventEmitter['on']>[1]): EventEmitter {
     return this._events.on(event, cb);
   }
@@ -277,6 +279,7 @@ export default class OHD {
     for (const [id, player] of this.players) {
       if (!players.has(id)) {
         this._events.emit('PLAYER_LEFT', player)
+        player._events.emit('PLAYER_LEFT')
         this.players.delete(id)
       }
     }
@@ -387,28 +390,60 @@ export default class OHD {
   /**
    * Kick a `Player` from the server by Username
    */
-  public kick(name: string, reason = 'You have been Kicked'): Promise<PlayerKicked> {
-    return this.send(`kick "${name}" "${reason}"`) as Promise<PlayerKicked>;
+  public async kick(name: string, reason = 'You have been Kicked'): Promise<PlayerKicked> {
+    const kicked = await this.send<PlayerKicked>(`kick "${name}" "${reason}"`);
+    if (kicked.success) {
+      const player = [...this.players.entries()].find((p)=> p[1].name == name)
+      if (player != undefined) {
+        this._events.emit('PLAYER_KICKED', player[1], kicked)
+        player[1]._events.emit('PLAYER_KICKED', kicked)
+      }
+    }
+    return kicked
   }
   /**
    * Kick a `Player` from the server by PlayerID
    */
-  public kickId(id: number, reason = 'You have been Kicked'): Promise<PlayerKicked> {
-    return this.send(`kickId ${id} "${reason}"`) as Promise<PlayerKicked>;
+  public async kickId(id: number, reason = 'You have been Kicked'): Promise<PlayerKicked> {
+    const kicked = await this.send<PlayerKicked>(`kickId ${id} "${reason}"`);
+    if (kicked.success) {
+      const player = this.players.get(id)
+      if (player != undefined) {
+        this._events.emit('PLAYER_KICKED', player, kicked)
+        player._events.emit('PLAYER_KICKED', kicked)
+      }
+    }
+    return kicked
   }
   /**
    * Ban a `Player` from the server by Username.
    */
-  public ban(name: string, /** Duration in Seconds*/ duration = 0, reason?: string,): Promise<PlayerBanned> {
+  public async ban(name: string, /** Duration in Seconds*/ duration = 0, reason?: string,): Promise<PlayerBanned> {
     if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`;
-    return this.send(`ban "${name}" "${reason}" ${duration}`) as Promise<PlayerBanned>;
+    const banned = await this.send<PlayerBanned>(`ban "${name}" "${reason}" ${duration}`);
+    if (banned.success) {
+      const player = [...this.players.entries()].find((p)=> p[1].name == name)
+      if (player != undefined) {
+        this._events.emit('PLAYER_BANNED', player[1], banned)
+        player[1]._events.emit('PLAYER_BANNED', banned)
+      }
+    }
+    return banned;
   }
   /**
    * Ban a `Player` from the server by PlayerID.
    */
-  public banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string): Promise<PlayerBanned> {
+  public async banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string): Promise<PlayerBanned> {
     if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`;
-    return this.send(`banId ${id} "${reason}" ${duration}`) as Promise<PlayerBanned>;
+    const banned = await this.send<PlayerBanned>(`banId ${id} "${reason}" ${duration}`);
+    if (banned.success) {
+      const player = this.players.get(id)
+      if (player != undefined) {
+        this._events.emit('PLAYER_BANNED', player, banned)
+        player._events.emit('PLAYER_BANNED', banned)
+      }
+    }
+    return banned;
   }
   /**
    * Create a new MapQuery Object to use with `serverTravel()`.
@@ -495,7 +530,7 @@ export default class OHD {
   /**
    * Send a Raw RCON command.
    */
-  public send(cmd: string): Promise<unknown> {
+  public send<T>(cmd: string): Promise<T> {
     const id: number = this.messageID++;
 
     return new Promise((resolve, reject) => {
@@ -506,7 +541,7 @@ export default class OHD {
       } as ResponsePromiseQueueObject;
       ob.resolve = (dat: unknown): void => {
         ob.handled = true;
-        resolve(dat);
+        resolve(dat as T);
       };
       ob.reject = (dat: unknown): void => {
         ob.handled = true;
@@ -536,7 +571,7 @@ export default class OHD {
       const res: any =
         this._parseResponse((q.buffer ?? '') + response.body) ?? response;
       if (res.success === false) {
-        q.reject(res.data);
+        q.reject(res.data ?? res);
       } else {
         q.resolve(res.data ?? res);
       }
