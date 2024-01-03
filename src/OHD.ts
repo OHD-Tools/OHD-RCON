@@ -17,6 +17,7 @@ enum PacketType {
   COMMAND = 0x02,
   AUTH = 0x03,
   RESPONSE_VALUE = 0x00,
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   RESPONSE_AUTH = 0x02,
 }
 
