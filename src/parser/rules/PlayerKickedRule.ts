@@ -2,7 +2,8 @@ import PlayerKicked from '../../definitions/PlayerKicked';
 import LogParserRule from '../../definitions/RCONParserRule';
 
 const PlayerKickedRule: LogParserRule<PlayerKicked> = {
-  regex: /^Player with (?<type>name|id number) '(?<identifier>.*)' was successfully kicked from the server with reason '(?<reason>.*)'/,
+  regex:
+    /^Player with (?<type>name|id number) '(?<identifier>.*)' was successfully kicked from the server with reason '(?<reason>.*)'/,
   format: (oargs) => {
     const args = oargs as RegExpMatchArray;
     const response: Partial<PlayerKicked> = {} as PlayerKicked;

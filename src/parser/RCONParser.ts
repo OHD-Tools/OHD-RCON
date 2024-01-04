@@ -20,12 +20,12 @@ export default class RCONParser {
         match = input.match(rule.regex);
       }
       if (!match) continue;
-      if (rule.matchAll){
+      if (rule.matchAll) {
         try {
           const items = Array.from(match as IterableIterator<RegExpMatchArray>);
           if (items.length === 0) continue;
           //eslint-disable-next-line @typescript-eslint/no-explicit-any
-          match = items as unknown as any
+          match = items as unknown as any;
         } catch (error) {
           // Ignore
         }
