@@ -1,12 +1,12 @@
 {
   "name": "@afocommunity/ohd-rcon",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "type": "commonjs",
   "scripts": {
     "build": "npx tsc",
-    "lint": "npx eslint ./src/ --fix",
+    "lint": "npx eslint ./src/ --fix && npx prettier ./src/ --write",
     "document": "npx typedoc ./src/index.ts --includeVersion"
   },
   "keywords": [
