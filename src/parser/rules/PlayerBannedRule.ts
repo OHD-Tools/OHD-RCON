@@ -1,9 +1,9 @@
-
 import LogParserRule from '../../definitions/RCONParserRule';
 import PlayerBanned from '../../definitions/PlayerBanned';
 
 const PlayerBannedRule: LogParserRule<PlayerBanned> = {
-  regex: /^Player with (?<type>name|id number) '(?<identifier>.*)' was successfully banned from the server with reason '(?<reason>.*)' for '(?<length>.*)' minutes/,
+  regex:
+    /^Player with (?<type>name|id number) '(?<identifier>.*)' was successfully banned from the server with reason '(?<reason>.*)' for '(?<length>.*)' minutes/,
   format: (oargs) => {
     const args = oargs as RegExpMatchArray;
     const response: Partial<PlayerBanned> = {} as PlayerBanned;

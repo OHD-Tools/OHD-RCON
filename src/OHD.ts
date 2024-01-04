@@ -9,7 +9,10 @@ import PlayerKicked from './definitions/PlayerKicked';
 import PlayerBanned from './definitions/PlayerBanned';
 import { Teams } from './definitions/Teams';
 import { setupVariableProxy } from './utils/Variables';
-import { ServerVariables, UnsafeVariables } from './definitions/ServerVariables';
+import {
+  ServerVariables,
+  UnsafeVariables,
+} from './definitions/ServerVariables';
 import VariableChanged from './definitions/VariableChanges';
 import Player from './Player';
 
@@ -26,7 +29,7 @@ type RconResponse = {
   id: number;
   type: number;
   body: string;
-}
+};
 
 /**!
  * node-rcon
@@ -56,24 +59,32 @@ class Rcon extends EventEmitter {
   connect(): void {
     try {
       this._tcpSocket = net.createConnection(this.port, this.host);
-      this._tcpSocket
-        .on('data', ((data: Buffer): void => {
+      this._tcpSocket.on(
+        'data',
+        ((data: Buffer): void => {
           this._tcpSocketOnData(data);
-        }).bind(this));
-      this._tcpSocket
-        .on('connect', ((): void => {
+        }).bind(this),
+      );
+      this._tcpSocket.on(
+        'connect',
+        ((): void => {
           this.socketOnConnect();
-        }).bind(this));
-      this._tcpSocket
-        .on('error', ((err: Error): void => {
+        }).bind(this),
+      );
+      this._tcpSocket.on(
+        'error',
+        ((err: Error): void => {
           this.emit('error', err);
-        }).bind(this));
-      this._tcpSocket
-        .on('end', ((): void => {
+        }).bind(this),
+      );
+      this._tcpSocket.on(
+        'end',
+        ((): void => {
           this.socketOnEnd();
-        }).bind(this));
+        }).bind(this),
+      );
     } catch (error) {
-      this.emit('error', error)
+      this.emit('error', error);
     }
   }
   send(data: string, cmd: number, id = 0x0012d4a6) {
@@ -93,16 +104,19 @@ class Rcon extends EventEmitter {
   }
   setTimeout(timeout: number, callback: () => unknown): void {
     if (!this._tcpSocket) return;
-    this._tcpSocket.setTimeout(timeout, ((): void => {
-      this._tcpSocket.end();
-      if (callback) callback();
-    }).bind(this));
+    this._tcpSocket.setTimeout(
+      timeout,
+      ((): void => {
+        this._tcpSocket.end();
+        if (callback) callback();
+      }).bind(this),
+    );
   }
   _tcpSocketOnData(data: Buffer): boolean | void {
     if (this.outstandingData != null) {
       data = Buffer.concat(
         [this.outstandingData, data],
-        this.outstandingData.length + data.length
+        this.outstandingData.length + data.length,
       );
       this.outstandingData = null;
     }
@@ -121,7 +135,8 @@ class Rcon extends EventEmitter {
       }
       const id: number = data.readInt32LE(4);
       const type: number = data.readInt32LE(8);
-      if (id == -1) return this.emit('error', new Error('Authentication failed'));
+      if (id == -1)
+        return this.emit('error', new Error('Authentication failed'));
 
       if (!this.hasAuthed && type == PacketType.RESPONSE_AUTH) {
         this.hasAuthed = true;
@@ -152,7 +167,6 @@ class Rcon extends EventEmitter {
     this.outstandingData = data;
   }
 
-
   socketOnConnect(): void {
     this.emit('connect');
     this.send(this.password, PacketType.AUTH);
@@ -170,11 +184,11 @@ type ResponsePromiseQueueObject = {
   resolve: (data: unknown) => void;
   reject: (reason: unknown) => void;
   timeOut: NodeJS.Timeout;
-}
+};
 
 type OHDOptions = {
-  disableAutoStatus: boolean
-}
+  disableAutoStatus: boolean;
+};
 
 /**
  * Primary Interface Object for OHD servers.
@@ -185,29 +199,70 @@ export default class OHD {
    */
   public onReady!: Promise<null>;
   public rconParser!: RCONParser;
-  public players: Map<number, Player> = new Map
-  public serverStatus: Omit<ServerStatus, 'Players'> = {} as Omit<ServerStatus, 'Players'>
+  public players: Map<number, Player> = new Map();
+  public serverStatus: Omit<ServerStatus, 'Players'> = {} as Omit<
+    ServerStatus,
+    'Players'
+  >;
   protected messageID!: number;
   protected _conn!: Rcon;
   protected _isAuthorized!: boolean;
   protected _responsePromiseQueue!: Map<number, ResponsePromiseQueueObject>;
-  public debug = false
+  public debug = false;
   /**Reconnect to the client */
-  public reconnect!: () => Promise<unknown>
-  public _events!: EventEmitter
-  constructor(ip: string, port: number, password: string, options?: OHDOptions) {
-    Object.defineProperty(this, '_isAuthorized', { enumerable: false, value: false });
+  public reconnect!: () => Promise<unknown>;
+  public _events!: EventEmitter;
+  constructor(
+    ip: string,
+    port: number,
+    password: string,
+    options?: OHDOptions,
+  ) {
+    Object.defineProperty(this, '_isAuthorized', {
+      enumerable: false,
+      value: false,
+    });
     Object.defineProperty(this, 'messageID', { enumerable: false, value: 1 });
-    Object.defineProperty(this, '_events', { enumerable: false, value: new EventEmitter });
-    Object.defineProperty(this, '_responsePromiseQueue', { enumerable: false, value: new Map });
-    Object.defineProperty(this, '_updateServerStatus', { enumerable: false, value: this._updateServerStatus.bind(this) });
-    Object.defineProperty(this, 'rconParser', { enumerable: false, value: new RCONParser(this) });
-    Object.defineProperty(this, '_onResponse', { enumerable: false, value: this._onResponse.bind(this) });
-    Object.defineProperty(this, '_updatePlayers', { enumerable: false, value: this._updatePlayers.bind(this) });
-    Object.defineProperty(this, '_onError', { enumerable: false, value: this._onError.bind(this) });
-    Object.defineProperty(this, '_onEnd', { enumerable: false, value: this.onEnd.bind(this) });
-    Object.defineProperty(this, '_conn', { enumerable: false, value: new Rcon(ip, port, password) });
-    const executor = (res: (val: null) => void, rej: (val: unknown) => void) => {
+    Object.defineProperty(this, '_events', {
+      enumerable: false,
+      value: new EventEmitter(),
+    });
+    Object.defineProperty(this, '_responsePromiseQueue', {
+      enumerable: false,
+      value: new Map(),
+    });
+    Object.defineProperty(this, '_updateServerStatus', {
+      enumerable: false,
+      value: this._updateServerStatus.bind(this),
+    });
+    Object.defineProperty(this, 'rconParser', {
+      enumerable: false,
+      value: new RCONParser(this),
+    });
+    Object.defineProperty(this, '_onResponse', {
+      enumerable: false,
+      value: this._onResponse.bind(this),
+    });
+    Object.defineProperty(this, '_updatePlayers', {
+      enumerable: false,
+      value: this._updatePlayers.bind(this),
+    });
+    Object.defineProperty(this, '_onError', {
+      enumerable: false,
+      value: this._onError.bind(this),
+    });
+    Object.defineProperty(this, '_onEnd', {
+      enumerable: false,
+      value: this.onEnd.bind(this),
+    });
+    Object.defineProperty(this, '_conn', {
+      enumerable: false,
+      value: new Rcon(ip, port, password),
+    });
+    const executor = (
+      res: (val: null) => void,
+      rej: (val: unknown) => void,
+    ) => {
       let handled = false;
       this._conn.once('error', (err) => {
         if (handled) return;
@@ -226,68 +281,93 @@ export default class OHD {
       .on('error', this._onError)
       .on('end', this.onEnd);
 
-    Object.defineProperty(this, 'onReady', { enumerable: false, value: new Promise<null>(executor) });
-    Object.defineProperty(this, 'reconnect', {
-      enumerable: false, value: () => {
-        Object.defineProperty(this, 'onReady', { enumerable: false, value: new Promise<null>(executor) });
-        return this.onReady
-      }
+    Object.defineProperty(this, 'onReady', {
+      enumerable: false,
+      value: new Promise<null>(executor),
     });
-    this.onReady.then(() => {
-      this._events.emit('READY')
-    })
-      .catch((err) => {
-        this._events.emit('error', err)
+    Object.defineProperty(this, 'reconnect', {
+      enumerable: false,
+      value: () => {
+        Object.defineProperty(this, 'onReady', {
+          enumerable: false,
+          value: new Promise<null>(executor),
+        });
+        return this.onReady;
+      },
+    });
+    this.onReady
+      .then(() => {
+        this._events.emit('READY');
       })
+      .catch((err) => {
+        this._events.emit('error', err);
+      });
     if (!options?.disableAutoStatus) {
       const getStatus = (() => {
-        this.status().then(status => {
-          if (status.Players != null) this._updatePlayers(new Map(status.Players.map((player) => [player.id, player])))
-          this._updateServerStatus(status)
+        this.status().then((status) => {
+          if (status.Players != null)
+            this._updatePlayers(
+              new Map(status.Players.map((player) => [player.id, player])),
+            );
+          this._updateServerStatus(status);
+        });
+      }).bind(this);
+      this.onReady
+        .then(() => {
+          getStatus();
+          setInterval(getStatus, 8000);
         })
-      }).bind(this)
-      this.onReady.then(() => {
-        getStatus();
-        setInterval(getStatus, 8000)
-      }).catch(() => {
-        //OOPS
-      })
+        .catch(() => {
+          //OOPS
+        });
     }
-    this._events.on('error', ()=>{
+    this._events.on('error', () => {
       //Handle Error. Hookable
-    })
+    });
   }
 
-  public on(event: 'READY', cb: () => void): EventEmitter
-  public on(event: 'PLAYER_JOINED', cb: (player: Player) => void): EventEmitter
-  public on(event: 'PLAYER_LEFT', cb: (player: Player) => void): EventEmitter
-  public on(event: 'PLAYER_KICKED', cb: (player: Player, event: PlayerKicked) => void): EventEmitter
-  public on(event: 'PLAYER_BANNED', cb: (player: Player, event: PlayerBanned) => void): EventEmitter
-  public on(event: Parameters<EventEmitter['on']>[0], cb: Parameters<EventEmitter['on']>[1]): EventEmitter {
+  public on(event: 'READY', cb: () => void): EventEmitter;
+  public on(event: 'PLAYER_JOINED', cb: (player: Player) => void): EventEmitter;
+  public on(event: 'PLAYER_LEFT', cb: (player: Player) => void): EventEmitter;
+  public on(
+    event: 'PLAYER_KICKED',
+    cb: (player: Player, event: PlayerKicked) => void,
+  ): EventEmitter;
+  public on(
+    event: 'PLAYER_BANNED',
+    cb: (player: Player, event: PlayerBanned) => void,
+  ): EventEmitter;
+  public on(
+    event: Parameters<EventEmitter['on']>[0],
+    cb: Parameters<EventEmitter['on']>[1],
+  ): EventEmitter {
     return this._events.on(event, cb);
   }
 
-  public removeListener(event: Parameters<EventEmitter['removeListener']>[0], cb: Parameters<EventEmitter['removeListener']>[1]): EventEmitter {
+  public removeListener(
+    event: Parameters<EventEmitter['removeListener']>[0],
+    cb: Parameters<EventEmitter['removeListener']>[1],
+  ): EventEmitter {
     return this._events.removeListener(event, cb);
   }
   protected _updateServerStatus(status: ServerStatus) {
     for (const prop in status) {
-      if (prop == 'Players') continue
-      Reflect.set(this.serverStatus, prop, Reflect.get(status, prop))
+      if (prop == 'Players') continue;
+      Reflect.set(this.serverStatus, prop, Reflect.get(status, prop));
     }
   }
   protected _updatePlayers(players: Map<number, Player>) {
     for (const [id, player] of this.players) {
       if (!players.has(id)) {
-        this._events.emit('PLAYER_LEFT', player)
-        player._events.emit('PLAYER_LEFT')
-        this.players.delete(id)
+        this._events.emit('PLAYER_LEFT', player);
+        player._events.emit('PLAYER_LEFT');
+        this.players.delete(id);
       }
     }
     for (const [id, player] of players) {
       if (!this.players.has(id)) {
-        this._events.emit('PLAYER_JOINED', player)
-        this.players.set(id, player)
+        this._events.emit('PLAYER_JOINED', player);
+        this.players.set(id, player);
       }
     }
   }
@@ -300,7 +380,7 @@ export default class OHD {
     return this.send('status').then((status: any) => {
       return {
         ...status.status,
-        Players: status.players
+        Players: status.players,
       };
     });
   }
@@ -365,15 +445,23 @@ export default class OHD {
    * @note This does not force change existing players team, only new ones
    * @depricated use OHD.variables
    */
-  public autoAssignHumanTeam(team: -1 | 0 | 1 | Teams): Promise<VariableChanged> {
-    return this.variables.Game.AutoAssignHumanTeam.write(team.toString() as '-1');
+  public autoAssignHumanTeam(
+    team: -1 | 0 | 1 | Teams,
+  ): Promise<VariableChanged> {
+    return this.variables.Game.AutoAssignHumanTeam.write(
+      team.toString() as '-1',
+    );
   }
   /**
    * Enable/Disable Team Autobalancing
    * @depricated use OHD.variables
    */
-  public autoBalanceTeamsOverride(enabled: boolean | -1 | 1): Promise<VariableChanged> {
-    return this.variables.Game.AutoBalanceTeamsOverride.write(enabled ? '1' : '-1')
+  public autoBalanceTeamsOverride(
+    enabled: boolean | -1 | 1,
+  ): Promise<VariableChanged> {
+    return this.variables.Game.AutoBalanceTeamsOverride.write(
+      enabled ? '1' : '-1',
+    );
   }
   /**
    * Remove all bots from the server.
@@ -391,42 +479,58 @@ export default class OHD {
   /**
    * Kick a `Player` from the server by Username
    */
-  public async kick(name: string, reason = 'You have been Kicked'): Promise<PlayerKicked> {
+  public async kick(
+    name: string,
+    reason = 'You have been Kicked',
+  ): Promise<PlayerKicked> {
     const kicked = await this.send<PlayerKicked>(`kick "${name}" "${reason}"`);
     if (kicked.success) {
-      const player = [...this.players.entries()].find((p)=> p[1].name == name)
+      const player = [...this.players.entries()].find((p) => p[1].name == name);
       if (player != undefined) {
-        this._events.emit('PLAYER_KICKED', player[1], kicked)
-        player[1]._events.emit('PLAYER_KICKED', kicked)
+        this._events.emit('PLAYER_KICKED', player[1], kicked);
+        player[1]._events.emit('PLAYER_KICKED', kicked);
       }
     }
-    return kicked
+    return kicked;
   }
   /**
    * Kick a `Player` from the server by PlayerID
    */
-  public async kickId(id: number, reason = 'You have been Kicked'): Promise<PlayerKicked> {
+  public async kickId(
+    id: number,
+    reason = 'You have been Kicked',
+  ): Promise<PlayerKicked> {
     const kicked = await this.send<PlayerKicked>(`kickId ${id} "${reason}"`);
     if (kicked.success) {
-      const player = this.players.get(id)
+      const player = this.players.get(id);
       if (player != undefined) {
-        this._events.emit('PLAYER_KICKED', player, kicked)
-        player._events.emit('PLAYER_KICKED', kicked)
+        this._events.emit('PLAYER_KICKED', player, kicked);
+        player._events.emit('PLAYER_KICKED', kicked);
       }
     }
-    return kicked
+    return kicked;
   }
   /**
    * Ban a `Player` from the server by Username.
    */
-  public async ban(name: string, /** Duration in Seconds*/ duration = 0, reason?: string,): Promise<PlayerBanned> {
-    if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`;
-    const banned = await this.send<PlayerBanned>(`ban "${name}" "${reason}" ${duration}`);
+  public async ban(
+    name: string,
+    /** Duration in Seconds*/ duration = 0,
+    reason?: string,
+  ): Promise<PlayerBanned> {
+    if (reason == null)
+      reason =
+        duration == 0
+          ? 'You have been Permanently Banned!'
+          : `You have been Banned for ${duration} minutes!`;
+    const banned = await this.send<PlayerBanned>(
+      `ban "${name}" "${reason}" ${duration}`,
+    );
     if (banned.success) {
-      const player = [...this.players.entries()].find((p)=> p[1].name == name)
+      const player = [...this.players.entries()].find((p) => p[1].name == name);
       if (player != undefined) {
-        this._events.emit('PLAYER_BANNED', player[1], banned)
-        player[1]._events.emit('PLAYER_BANNED', banned)
+        this._events.emit('PLAYER_BANNED', player[1], banned);
+        player[1]._events.emit('PLAYER_BANNED', banned);
       }
     }
     return banned;
@@ -434,14 +538,24 @@ export default class OHD {
   /**
    * Ban a `Player` from the server by PlayerID.
    */
-  public async banId(id: number, /** Duration in Seconds*/ duration = 0, reason?: string): Promise<PlayerBanned> {
-    if (reason == null) reason = duration == 0 ? 'You have been Permanently Banned!' : `You have been Banned for ${duration} minutes!`;
-    const banned = await this.send<PlayerBanned>(`banId ${id} "${reason}" ${duration}`);
+  public async banId(
+    id: number,
+    /** Duration in Seconds*/ duration = 0,
+    reason?: string,
+  ): Promise<PlayerBanned> {
+    if (reason == null)
+      reason =
+        duration == 0
+          ? 'You have been Permanently Banned!'
+          : `You have been Banned for ${duration} minutes!`;
+    const banned = await this.send<PlayerBanned>(
+      `banId ${id} "${reason}" ${duration}`,
+    );
     if (banned.success) {
-      const player = this.players.get(id)
+      const player = this.players.get(id);
       if (player != undefined) {
-        this._events.emit('PLAYER_BANNED', player, banned)
-        player._events.emit('PLAYER_BANNED', banned)
+        this._events.emit('PLAYER_BANNED', player, banned);
+        player._events.emit('PLAYER_BANNED', banned);
       }
     }
     return banned;
@@ -498,15 +612,21 @@ export default class OHD {
    *  1: Blufor
    * @depricated use OHD.variables
    */
-  public autoAssignHuman(team: -1 | 0 | 1 | Teams = -1): Promise<VariableChanged> {
-    return this.variables.Game.AutoAssignHumanTeam.write(team.toString() as '-1');
+  public autoAssignHuman(
+    team: -1 | 0 | 1 | Teams = -1,
+  ): Promise<VariableChanged> {
+    return this.variables.Game.AutoAssignHumanTeam.write(
+      team.toString() as '-1',
+    );
   }
   /**
    * Set the respawn delay
    * @depricated use OHD.variables
    */
   public minRespawnDelay(seconds: number): Promise<VariableChanged> {
-    return this.variables.HD.Game.MinRespawnDelayOverride.write(seconds.toString() as '0');
+    return this.variables.HD.Game.MinRespawnDelayOverride.write(
+      seconds.toString() as '0',
+    );
   }
   /**
    * Change the current Level.
@@ -562,7 +682,9 @@ export default class OHD {
   protected _onResponse(response: RconResponse): void {
     const size: number = response?.size;
     if (this._responsePromiseQueue.has(response.id)) {
-      const q: ResponsePromiseQueueObject = this._responsePromiseQueue.get(response.id) as ResponsePromiseQueueObject;
+      const q: ResponsePromiseQueueObject = this._responsePromiseQueue.get(
+        response.id,
+      ) as ResponsePromiseQueueObject;
       if (size >= 4092) {
         //MAX PACKET SIZE, MIGHT BE SPLIT
         q.buffer += response.body;
@@ -595,7 +717,7 @@ export default class OHD {
   }
   protected _onError(err: string): void {
     if (this.debug) {
-      console.error(err)
+      console.error(err);
     }
     //Handle Error. Hookable
   }

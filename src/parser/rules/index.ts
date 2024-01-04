@@ -15,5 +15,5 @@ export default [
   PlayerBannedRule,
   PlayerBanFailedRule,
   VariableChangedRule,
-  VariableReadRule
+  VariableReadRule,
 ];
