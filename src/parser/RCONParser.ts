@@ -13,24 +13,22 @@ export default class RCONParser {
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
     let response: any = undefined;
     for (const rule of this.rules) {
-      let matchFunc: typeof input.match | typeof input.matchAll;
-      if (rule.matchAll) {
-        matchFunc = input.matchAll;
-      } else {
-        matchFunc = input.match;
-      }
+      const matchFunc = (input: string, reg: RegExp) => {
+        if (rule.matchAll) {
+          return input.matchAll(reg);
+        } else {
+          return input.match(reg);
+        }
+      };
       let match: IterableIterator<RegExpMatchArray> | RegExpMatchArray | null =
         null;
       if (Array.isArray(rule.regex)) {
         match =
           rule.regex
-            .map((reg) => {
-              const res = matchFunc(reg);
-              return res;
-            })
+            .map((reg) => matchFunc(input, reg))
             .find((v) => v != null) ?? null;
       } else {
-        match = matchFunc(rule.regex);
+        match = matchFunc(input, rule.regex);
       }
       if (!match) continue;
       if (rule.matchAll) {
