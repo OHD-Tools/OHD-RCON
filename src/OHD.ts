@@ -385,6 +385,12 @@ export default class OHD {
     });
   }
   /**
+   * Add `admin_name` to admins list
+   */
+  public addAdminName(player_name = 'whatAboutBob'): Promise<void> {
+    return this.send(`admin add ${player_name}`) as Promise<void>;
+  }
+  /**
    * Add `amount` bots to the server.
    */
   public addBots(amount = 1): Promise<void> {
