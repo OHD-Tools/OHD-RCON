@@ -2,5 +2,6 @@ export default interface PlayerKicked {
   success: boolean;
   name?: string;
   id?: number;
-  reason: string;
+  kickReason: string;
+  reason?: string;
 }
