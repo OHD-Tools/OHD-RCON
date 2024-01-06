@@ -50,8 +50,13 @@ myServer.on('READY', () => {
 myServer.onReady.then(() => {
   let restrictions =
     myServer.variables.HD.Game.DisableKitRestrictionsOverride.read();
-    
+
   let respawnDelayInfo =
     myServer.variables.HD.Game.MinRespawnDelayOverride.readDetailed();
 });
 ```
+
+# Development
+
+To run tests locally, place a copy of [steamcmd.exe](https://developer.valvesoftware.com/wiki/SteamCMD#Windows) in the `steamcmd` folder.
+This is used to download OHD and boot a local server for testing purposes. You **MUST** port forward `7777, 7778, 7779, 27005` (Default)
