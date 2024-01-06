@@ -199,7 +199,15 @@ export default class OHD {
    */
   public onReady!: Promise<null>;
   public rconParser!: RCONParser;
+  /**
+   * Online Players
+   */
   public players: Map<number, Player> = new Map();
+  /**
+   * Players who have recently Left
+   */
+  public recentPlayers: Array<Player> = [];
+  public recentPlayerLimit: number = 10;
   public serverStatus: Omit<ServerStatus, 'Players'> = {} as Omit<
     ServerStatus,
     'Players'
@@ -325,14 +333,35 @@ export default class OHD {
       //Handle Error. Hookable
     });
   }
-
+  /**
+   * The bot is ready
+   */
   public on(event: 'READY', cb: () => void): EventEmitter;
+  /**
+   * The player joined the server
+   */
   public on(event: 'PLAYER_JOINED', cb: (player: Player) => void): EventEmitter;
+  /**
+   * The player left the server
+   */
   public on(event: 'PLAYER_LEFT', cb: (player: Player) => void): EventEmitter;
+  /**
+   * The player was deleted from memory
+   */
+  public on(
+    event: 'PLAYER_DELETED',
+    cb: (player: Player) => void,
+  ): EventEmitter;
+  /**
+   * The player was kicked
+   */
   public on(
     event: 'PLAYER_KICKED',
     cb: (player: Player, event: PlayerKicked) => void,
   ): EventEmitter;
+  /**
+   * The player was banned
+   */
   public on(
     event: 'PLAYER_BANNED',
     cb: (player: Player, event: PlayerBanned) => void,
@@ -357,11 +386,18 @@ export default class OHD {
     }
   }
   protected _updatePlayers(players: Map<number, Player>) {
-    for (const [id, player] of this.players) {
+    for (const [id] of this.players) {
       if (!players.has(id)) {
-        this._events.emit('PLAYER_LEFT', player);
-        player._events.emit('PLAYER_LEFT');
+        const oldPlayer = this.players.get(id) as Player;
+        this._events.emit('PLAYER_LEFT', oldPlayer);
+        oldPlayer._events.emit('PLAYER_LEFT');
+        this.recentPlayers.push(oldPlayer);
         this.players.delete(id);
+        while (this.recentPlayers.length > this.recentPlayerLimit) {
+          const p = this.recentPlayers.shift() as Player;
+          this._events.emit('PLAYER_DELETED', p);
+          p._events.emit('PLAYER_DELETED');
+        }
       }
     }
     for (const [id, player] of players) {

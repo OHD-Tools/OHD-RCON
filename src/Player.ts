@@ -44,12 +44,24 @@ export default class Player {
     this.steam64 = $b.steam64;
     this.name = $b.name;
   }
-
+  /**
+   * The player has Left the Server
+   */
   public on(event: 'PLAYER_LEFT', cb: () => void): EventEmitter;
+  /**
+   * The player has been cleared out of memory
+   */
+  public on(event: 'PLAYER_DELETED', cb: () => void): EventEmitter;
+  /**
+   * The player has been Kicked
+   */
   public on(
     event: 'PLAYER_KICKED',
     cb: (event: PlayerKicked) => void,
   ): EventEmitter;
+  /**
+   * The player has been Banned
+   */
   public on(
     event: 'PLAYER_BANNED',
     cb: (event: PlayerBanned) => void,
