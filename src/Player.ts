@@ -109,10 +109,16 @@ export default class Player {
     if (!this.hasController) return this.controllerReject();
     return this._controller.forceTeamId(this.id, teamId);
   }
+  /**
+   * Give the user Admin Access
+   */
   addAdmin() {
     if (!this.hasController) return this.controllerReject();
     return this._controller.addAdminById(this.id);
   }
+  /**
+   * Revoke the users Admin Access
+   */
   removeAdmin() {
     if (!this.hasController) return this.controllerReject();
     return this._controller.removeAdminById(this.id);

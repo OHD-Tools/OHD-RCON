@@ -421,17 +421,29 @@ export default class OHD {
       };
     });
   }
-  public addAdmin(user: string | number) {
-    if (typeof user === 'number') return this.addAdminById(user);
-    return this.send<CommandSuccess>(`admin add "${user}"`);
+  /**
+   * Give the user Admin Access
+   */
+  public addAdmin(name: string | number) {
+    if (typeof name === 'number') return this.addAdminById(name);
+    return this.send<CommandSuccess>(`admin add "${name}"`);
   }
+  /**
+   * Give the user Admin Access
+   */
   public addAdminById(id: number) {
     return this.send<CommandSuccess>(`admin addId ${id}`);
   }
-  public removeAdmin(user: string | number) {
-    if (typeof user === 'number') return this.removeAdminById(user);
-    return this.send<CommandSuccess>(`admin remove "${user}"`);
+  /**
+   * Revoke the users Admin Access
+   */
+  public removeAdmin(name: string | number) {
+    if (typeof name === 'number') return this.removeAdminById(name);
+    return this.send<CommandSuccess>(`admin remove "${name}"`);
   }
+  /**
+   * Revoke the users Admin Access
+   */
   public removeAdminById(id: number) {
     return this.send<CommandSuccess>(`admin removeId ${id}`);
   }
