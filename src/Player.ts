@@ -88,24 +88,39 @@ export default class Player {
   protected get hasController(): boolean {
     return this._controller != undefined;
   }
-  protected controllerReject(): Promise<{ reason: string }> {
+  protected controllerReject(): Promise<{ success: false; reason: string }> {
     return Promise.reject({
+      success: false,
       reason: `Object for Player ${this.id} does not have an RCON Controller.`,
     });
   }
   /**Kick the current `Player` */
-  kick(reason = 'You have been Kicked!'): Promise<unknown> {
+  kick(reason = 'You have been Kicked!') {
     if (!this.hasController) return this.controllerReject();
     return this._controller.kickId(this.id, reason);
   }
   /**Ban the current `Player` */
-  ban(duration = 0, reason?: string): Promise<unknown> {
+  ban(duration = 0, reason?: string) {
     if (!this.hasController) return this.controllerReject();
     return this._controller.banId(this.id, duration, reason);
   }
   /**Set the team of the current `Player` */
-  setTeam(teamId: 0 | 1 | Teams): Promise<unknown> {
+  setTeam(teamId: 0 | 1 | Teams) {
     if (!this.hasController) return this.controllerReject();
     return this._controller.forceTeamId(this.id, teamId);
+  }
+  /**
+   * Give the user Admin Access
+   */
+  addAdmin() {
+    if (!this.hasController) return this.controllerReject();
+    return this._controller.addAdminById(this.id);
+  }
+  /**
+   * Revoke the users Admin Access
+   */
+  removeAdmin() {
+    if (!this.hasController) return this.controllerReject();
+    return this._controller.removeAdminById(this.id);
   }
 }

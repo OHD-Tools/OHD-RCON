@@ -15,6 +15,7 @@ import {
 } from './definitions/ServerVariables';
 import VariableChanged from './definitions/VariableChanges';
 import Player from './Player';
+import CommandSuccess from './definitions/CommandSuccess';
 
 enum PacketType {
   COMMAND = 0x02,
@@ -421,6 +422,32 @@ export default class OHD {
     });
   }
   /**
+   * Give the user Admin Access
+   */
+  public addAdmin(name: string | number) {
+    if (typeof name === 'number') return this.addAdminById(name);
+    return this.send<CommandSuccess>(`admin add "${name}"`);
+  }
+  /**
+   * Give the user Admin Access
+   */
+  public addAdminById(id: number) {
+    return this.send<CommandSuccess>(`admin addId ${id}`);
+  }
+  /**
+   * Revoke the users Admin Access
+   */
+  public removeAdmin(name: string | number) {
+    if (typeof name === 'number') return this.removeAdminById(name);
+    return this.send<CommandSuccess>(`admin remove "${name}"`);
+  }
+  /**
+   * Revoke the users Admin Access
+   */
+  public removeAdminById(id: number) {
+    return this.send<CommandSuccess>(`admin removeId ${id}`);
+  }
+  /**
    * Add `amount` bots to the server.
    */
   public addBots(amount = 1): Promise<void> {
@@ -516,9 +543,10 @@ export default class OHD {
    * Kick a `Player` from the server by Username
    */
   public async kick(
-    name: string,
+    name: string | number,
     reason = 'You have been Kicked',
   ): Promise<PlayerKicked> {
+    if (typeof name === 'number') return this.kickId(name, reason);
     const kicked = await this.send<PlayerKicked>(`kick "${name}" "${reason}"`);
     if (kicked.success) {
       const player = [...this.players.entries()].find((p) => p[1].name == name);
@@ -550,10 +578,11 @@ export default class OHD {
    * Ban a `Player` from the server by Username.
    */
   public async ban(
-    name: string,
+    name: string | number,
     /** Duration in Seconds*/ duration = 0,
     reason?: string,
   ): Promise<PlayerBanned> {
+    if (typeof name === 'number') return this.banId(name, duration, reason);
     if (reason == null)
       reason =
         duration == 0
