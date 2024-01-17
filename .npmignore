@@ -15,3 +15,4 @@ ServerFiles/
 steamcmd/
 vitest.config.ts
 install_server_files.bat
+.prettierrc
