@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npx tsc",
     "lint": "npx eslint ./src/ --fix && npx prettier ./src/ --write",
-    "document": "npx typedoc ./src/index.ts --includeVersion"
+    "document": "npx typedoc ./src/index.ts --includeVersion --plugin typedoc-plugin-missing-exports --excludeExternals true --internalModule internal"
   },
   "keywords": [
     "RCON",
@@ -23,6 +23,7 @@
     "eslint": "8.56.0",
     "prettier": "3.1.1",
     "typedoc": "0.25.7",
+    "typedoc-plugin-missing-exports": "^2.2.0",
     "typescript": "5.3.3",
     "vitest": "^1.1.3"
   },
