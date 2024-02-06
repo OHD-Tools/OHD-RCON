@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npx tsc",
     "lint": "npx eslint ./src/ --fix && npx prettier ./src/ --write",
-    "document": "npx typedoc ./src/index.ts --includeVersion --plugin typedoc-plugin-missing-exports --excludeExternals true --internalModule internal"
+    "document": "npx typedoc ./src/index.ts --includeVersion --cname ohdrcon.docs.ohd.tools --plugin typedoc-plugin-missing-exports --excludeExternals true --internalModule internal"
   },
   "keywords": [
     "RCON",
@@ -17,11 +17,11 @@
   "author": "bombitmanbomb",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "20.11.2",
-    "@typescript-eslint/eslint-plugin": "6.19.0",
-    "@typescript-eslint/parser": "6.18.1",
+    "@types/node": "20.11.16",
+    "@typescript-eslint/eslint-plugin": "6.20.0",
+    "@typescript-eslint/parser": "6.20.0",
     "eslint": "8.56.0",
-    "prettier": "3.2.4",
+    "prettier": "3.2.5",
     "typedoc": "0.25.7",
     "typedoc-plugin-missing-exports": "^2.2.0",
     "typescript": "5.3.3",
