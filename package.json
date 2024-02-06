@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npx tsc",
     "lint": "npx eslint ./src/ --fix && npx prettier ./src/ --write",
-    "document": "npx typedoc ./src/index.ts --includeVersion --plugin typedoc-plugin-missing-exports --excludeExternals true --internalModule internal"
+    "document": "npx typedoc ./src/index.ts --includeVersion --cname ohdrcon.docs.ohd.tools --plugin typedoc-plugin-missing-exports --excludeExternals true --internalModule internal"
   },
   "keywords": [
     "RCON",
