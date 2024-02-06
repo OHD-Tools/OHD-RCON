@@ -24,7 +24,7 @@ yarn add @afocommunity/ohd-rcon
 
 # Documentation
 
-Documentation can be found [HERE](https://afocommunity.github.io/OHD-RCON/modules.html)
+Documentation can be found [HERE](https://ohd-tools.github.io/OHD-RCON/)
 
 ![Docs](https://img.shields.io/website?down_color=red&down_message=offline&up_color=brightgreen&up_message=online&url=https%3A%2F%2Fafocommunity.github.io%2FOHD-RCON%2Fmodules.html)
 
