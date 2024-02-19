@@ -89,6 +89,12 @@ class Rcon extends EventEmitter {
     }
   }
   send(data: string, cmd: number, id = 0x0012d4a6) {
+    if (!this.hasAuthed && cmd != PacketType.AUTH) {
+      // Needs a proper solution.
+      this.connect()
+      this.send(this.password, PacketType.AUTH);
+      return
+    }
     cmd = cmd || PacketType.COMMAND;
     const length: number = Buffer.byteLength(data);
     const sendBuf: Buffer = Buffer.alloc(length + 14);
