@@ -20,7 +20,7 @@
     "@types/node": "20.11.19",
     "@typescript-eslint/eslint-plugin": "7.0.0",
     "@typescript-eslint/parser": "6.20.0",
-    "eslint": "8.56.0",
+    "eslint": "8.57.0",
     "prettier": "3.2.5",
     "typedoc": "0.25.8",
     "typedoc-plugin-missing-exports": "^2.2.0",
