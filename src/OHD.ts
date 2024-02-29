@@ -44,6 +44,7 @@ class Rcon extends EventEmitter {
   public password: string;
   public outstandingData: Buffer | null = null;
   public hasAuthed: boolean;
+  public autoReconnect = true;
   protected _tcpSocket!: Socket;
   constructor(host: string, port: number, password: string) {
     super();
@@ -89,11 +90,11 @@ class Rcon extends EventEmitter {
     }
   }
   send(data: string, cmd: number, id = 0x0012d4a6) {
-    if (!this.hasAuthed && cmd != PacketType.AUTH) {
+    if (this.autoReconnect && !this.hasAuthed && cmd != PacketType.AUTH) {
       // Needs a proper solution.
-      this.connect()
+      this.connect();
       this.send(this.password, PacketType.AUTH);
-      return
+      return;
     }
     cmd = cmd || PacketType.COMMAND;
     const length: number = Buffer.byteLength(data);
@@ -195,6 +196,7 @@ type ResponsePromiseQueueObject = {
 
 type OHDOptions = {
   disableAutoStatus: boolean;
+  autoReconnect: boolean;
 };
 
 /**
@@ -291,6 +293,8 @@ export default class OHD {
       });
       this._conn.connect();
     };
+    this._conn.autoReconnect =
+      options?.autoReconnect ?? this._conn.autoReconnect;
     this._conn
       .on('response', this._onResponse)
       .on('error', this._onError)
