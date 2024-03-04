@@ -35,11 +35,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/afocommunity/OHD-RCON.git"
+    "url": "git+https://github.com/OHD-Tools/OHD-RCON.git"
   },
   "bugs": {
-    "url": "https://github.com/afocommunity/OHD-RCON/issues"
+    "url": "https://github.com/OHD-Tools/OHD-RCON/issues"
   },
-  "homepage": "https://github.com/afocommunity/OHD-RCON#readme",
+  "homepage": "https://github.com/OHD-Tools/OHD-RCON#readme",
   "description": "An RCON Interface for Operation: Harsh Doorstop"
 }
