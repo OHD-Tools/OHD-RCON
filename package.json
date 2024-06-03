@@ -21,7 +21,7 @@
     "@typescript-eslint/eslint-plugin": "7.10.0",
     "@typescript-eslint/parser": "7.1.1",
     "eslint": "8.57.0",
-    "prettier": "3.2.5",
+    "prettier": "3.3.0",
     "typedoc": "0.25.12",
     "typedoc-plugin-missing-exports": "^2.2.0",
     "typescript": "5.4.5",
