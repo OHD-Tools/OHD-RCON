@@ -42,17 +42,13 @@ myServer.on('PLAYER_JOINED', (player) => {
   }
 });
 
-myServer.on('READY', () => {
-  myServer.variables.HD.Game.DisableKitRestrictionsOverride.write('1');
-  myServer.variables.HD.Game.MinRespawnDelayOverride.write('0.00');
-});
-// Alternatively
-myServer.onReady.then(() => {
-  let restrictions =
-    myServer.variables.HD.Game.DisableKitRestrictionsOverride.read();
-
-  let respawnDelayInfo =
-    myServer.variables.HD.Game.MinRespawnDelayOverride.readDetailed();
+myServer.on('READY', async () => {
+  await myServer.variables.HD.Game.DisableKitRestrictionsOverride.write('1');
+  await myServer.variables.HD.Game.MinRespawnDelayOverride.write('0.00');
+  const restrictions =
+    await myServer.variables.HD.Game.DisableKitRestrictionsOverride.read();
+  const respawnDelayInfo =
+    await myServer.variables.HD.Game.MinRespawnDelayOverride.readDetailed();
 });
 ```
 

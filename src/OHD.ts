@@ -123,7 +123,8 @@ class Rcon extends EventEmitter {
   _tcpSocketOnData(data: Buffer): boolean | void {
     if (this.outstandingData != null) {
       data = Buffer.concat(
-        [this.outstandingData, data],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        [this.outstandingData as any, data as any],
         this.outstandingData.length + data.length,
       );
       this.outstandingData = null;
