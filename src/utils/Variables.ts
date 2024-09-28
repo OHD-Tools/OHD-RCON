@@ -1,7 +1,7 @@
 import type OHD from '../OHD';
 import VariableChanged from '../definitions/VariableChanges';
 import VariableRead from '../definitions/VariableRead';
-const noop = () => {}; //eslint-disable-line @typescript-eslint/no-empty-function
+const noop = () => {};
 
 export interface Readable<T> {
   read: () => Promise<T>;

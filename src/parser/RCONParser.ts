@@ -37,6 +37,7 @@ export default class RCONParser {
           if (items.length === 0) continue;
           //eslint-disable-next-line @typescript-eslint/no-explicit-any
           match = items as unknown as any;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
           // Ignore
         }
