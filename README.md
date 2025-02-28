@@ -13,13 +13,13 @@
 NPM
 
 ```bash
-npm install @ohd-tools/ohd-rcon
+npm install @ohd-tools/rcon
 ```
 
 YARN
 
 ```bash
-yarn add @ohd-tools/ohd-rcon
+yarn add @ohd-tools/rcon
 ```
 
 # Documentation
@@ -32,7 +32,7 @@ Documentation can be found [HERE](https://ohd-tools.github.io/OHD-RCON/)
 
 ```ts
 // Example Usage that bans all players with a given word or phrase in their name.
-import { OHD } from '@ohd-tools/ohd-rcon';
+import { OHD } from '@ohd-tools/rcon';
 
 const myServer = new OHD('127.0.0.1', 8000, 'mypassword');
 
