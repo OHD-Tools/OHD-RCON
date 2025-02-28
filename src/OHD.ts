@@ -3,7 +3,7 @@ import { Socket } from 'net';
 import events from 'events';
 import net from 'net';
 import ServerStatus from './definitions/ServerStatus';
-import MapQuery, { MapQueryProps } from './utils/MapQuery';
+import { MapQuery, MapQueryProps } from '@ohd-tools/utils';
 import RCONParser from './parser/RCONParser';
 import PlayerKicked from './definitions/PlayerKicked';
 import PlayerBanned from './definitions/PlayerBanned';
@@ -462,13 +462,13 @@ export default class OHD {
    * Add `amount` bots to the server.
    */
   public addBots(amount = 1): Promise<void> {
-    return this.send(`addBots ${amount}`) as Promise<void>;
+    return this.send(`addBots ${amount}`);
   }
   /**
    * Add a Named Bot to the server.
    */
   public addNamedBot(name = 'Chuck Norris'): Promise<void> {
-    return this.send(`addNamedBot ${name}`) as Promise<void>;
+    return this.send(`addNamedBot ${name}`);
   }
   /**
    * Add bots to a specified Team

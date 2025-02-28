@@ -1,6 +1,6 @@
 {
-  "name": "@ohd-tools/ohd-rcon",
-  "version": "0.11.3",
+  "name": "@ohd-tools/rcon",
+  "version": "0.12.0",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "type": "commonjs",
@@ -27,7 +27,7 @@
     "typedoc": "0.26.7",
     "typedoc-plugin-missing-exports": "^3.0.0",
     "typescript": "5.6.2",
-    "vitest": "^2.0.5"
+    "vitest": "^3.0.7"
   },
   "engines": {
     "node": ">=16"
@@ -43,5 +43,8 @@
     "url": "https://github.com/OHD-Tools/OHD-RCON/issues"
   },
   "homepage": "https://github.com/OHD-Tools/OHD-RCON#readme",
-  "description": "An RCON Interface for Operation: Harsh Doorstop"
+  "description": "An RCON Interface for Operation: Harsh Doorstop",
+  "dependencies": {
+    "@ohd-tools/utils": "^0.12.1"
+  }
 }
