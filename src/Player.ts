@@ -7,6 +7,7 @@ type PlayerProps = {
   id: number;
   steam64: string | null;
   name: string;
+  created?: Date;
 };
 /**
  * Generic Player Object
@@ -15,6 +16,7 @@ export default class Player {
   public id: PlayerProps['id'];
   public steam64: PlayerProps['steam64'];
   public name: PlayerProps['name'];
+  public created: Date;
   public _events!: EventEmitter;
   protected _controller!: OHD;
 
@@ -43,6 +45,7 @@ export default class Player {
     this.id = $b.id;
     this.steam64 = $b.steam64;
     this.name = $b.name;
+    this.created = $b.created ?? new Date();
   }
   /**
    * The player has Left the Server
