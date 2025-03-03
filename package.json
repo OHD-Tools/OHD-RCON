@@ -1,6 +1,6 @@
 {
   "name": "@ohd-tools/rcon",
-  "version": "0.12.3",
+  "version": "0.12.4",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "type": "commonjs",
@@ -45,6 +45,6 @@
   "homepage": "https://github.com/OHD-Tools/OHD-RCON#readme",
   "description": "An RCON Interface for Operation: Harsh Doorstop",
   "dependencies": {
-    "@ohd-tools/utils": "^0.12.2"
+    "@ohd-tools/utils": "^0.12.4"
   }
 }
