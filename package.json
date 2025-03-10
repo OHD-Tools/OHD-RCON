@@ -45,6 +45,6 @@
   "homepage": "https://github.com/OHD-Tools/OHD-RCON#readme",
   "description": "An RCON Interface for Operation: Harsh Doorstop",
   "dependencies": {
-    "@ohd-tools/utils": "^0.12.5"
+    "@ohd-tools/utils": "^0.13.0"
   }
 }
