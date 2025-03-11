@@ -341,7 +341,7 @@ export default class OHD {
         });
       };
       this.onReady
-        .then(() => {
+        .then(async () => {
           getStatus();
           setInterval(getStatus, 8000);
           //! Log Handler
@@ -366,6 +366,8 @@ export default class OHD {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   options.logParsing.options as any,
                 );
+                await this._log.setup();
+                await this._log.watch();
                 break;
               case 'ftp':
                 this._log = new Readers.FTPLogReader(
@@ -373,6 +375,8 @@ export default class OHD {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   options.logParsing.options as any,
                 );
+                await this._log.setup();
+                await this._log.watch();
                 break;
               case 'sftp':
                 this._log = new Readers.SFTPLogReader(
@@ -380,6 +384,8 @@ export default class OHD {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   options.logParsing.options as any,
                 );
+                await this._log.setup();
+                await this._log.watch();
                 break;
             }
           }
