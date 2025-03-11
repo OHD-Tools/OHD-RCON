@@ -1,6 +1,6 @@
 import PlayerBannedRule from './PlayerBannedRule';
 import PlayerKickedRule from './PlayerKickedRule';
-import PlayerPrivilegeAddRule from './PlayerPrivilegeAddRule';
+import PlayerPrivilegeAddRule from '../log_rules/PlayerChatRule';
 import PlayerPrivilegeRemoveRule from './PlayerPrivilegeRemoveRule';
 import StatusPlayerRule from './StatusPlayerRule';
 import StatusRule from './StatusRule';

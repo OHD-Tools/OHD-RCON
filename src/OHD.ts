@@ -1,10 +1,8 @@
-import EventEmitter from 'events';
-import { Socket } from 'net';
 import events from 'events';
 import net from 'net';
 import ServerStatus from './definitions/ServerStatus';
-import { MapQuery, MapQueryProps } from '@ohd-tools/utils';
-import RCONParser from './parser/RCONParser';
+import { MapQuery, MapQueryProps, Readers } from '@ohd-tools/utils';
+import { RCONParser, LogParser } from './parser';
 import PlayerKicked from './definitions/PlayerKicked';
 import PlayerBanned from './definitions/PlayerBanned';
 import { Teams } from './definitions/Teams';
@@ -13,9 +11,10 @@ import {
   ServerVariables,
   UnsafeVariables,
 } from './definitions/ServerVariables';
-import VariableChanged from './definitions/VariableChanges';
 import Player from './Player';
 import CommandSuccess from './definitions/CommandSuccess';
+import PlayerChat from './definitions/PlayerChat';
+import Message from './Message';
 
 enum PacketType {
   COMMAND = 0x02,
@@ -38,14 +37,14 @@ type RconResponse = {
  * MIT Licensed
  * Stripped Down and modified by @bombitmanbomb
  */
-class Rcon extends EventEmitter {
+class Rcon extends events.EventEmitter {
   public host: string;
   public port: number;
   public password: string;
   public outstandingData: Buffer | null = null;
   public hasAuthed: boolean;
   public autoReconnect = true;
-  protected _tcpSocket!: Socket;
+  protected _tcpSocket!: net.Socket;
   constructor(host: string, port: number, password: string) {
     super();
     this.host = host;
@@ -61,30 +60,18 @@ class Rcon extends EventEmitter {
   connect(): void {
     try {
       this._tcpSocket = net.createConnection(this.port, this.host);
-      this._tcpSocket.on(
-        'data',
-        ((data: Buffer): void => {
-          this._tcpSocketOnData(data);
-        }).bind(this),
-      );
-      this._tcpSocket.on(
-        'connect',
-        ((): void => {
-          this.socketOnConnect();
-        }).bind(this),
-      );
-      this._tcpSocket.on(
-        'error',
-        ((err: Error): void => {
-          this.emit('error', err);
-        }).bind(this),
-      );
-      this._tcpSocket.on(
-        'end',
-        ((): void => {
-          this.socketOnEnd();
-        }).bind(this),
-      );
+      this._tcpSocket.on('data', (data: Buffer): void => {
+        this._tcpSocketOnData(data);
+      });
+      this._tcpSocket.on('connect', (): void => {
+        this.socketOnConnect();
+      });
+      this._tcpSocket.on('error', (err: Error): void => {
+        this.emit('error', err);
+      });
+      this._tcpSocket.on('end', (): void => {
+        this.socketOnEnd();
+      });
     } catch (error) {
       this.emit('error', error);
     }
@@ -112,13 +99,10 @@ class Rcon extends EventEmitter {
   }
   setTimeout(timeout: number, callback: () => unknown): void {
     if (!this._tcpSocket) return;
-    this._tcpSocket.setTimeout(
-      timeout,
-      ((): void => {
-        this._tcpSocket.end();
-        if (callback) callback();
-      }).bind(this),
-    );
+    this._tcpSocket.setTimeout(timeout, (): void => {
+      this._tcpSocket.end();
+      if (callback) callback();
+    });
   }
   _tcpSocketOnData(data: Buffer): boolean | void {
     if (this.outstandingData != null) {
@@ -155,7 +139,7 @@ class Rcon extends EventEmitter {
         // See https://developer.valvesoftware.com/wiki/Source_RCON_Protocol for details
         let str: string = data.toString('utf8', 12, 12 + bodyLen);
 
-        if (str.charAt(str.length - 1) === '\n') {
+        if (str.endsWith('\n')) {
           // Emit the response without the newline.
           str = str.substring(0, str.length - 1);
         }
@@ -195,9 +179,24 @@ type ResponsePromiseQueueObject = {
   timeOut: NodeJS.Timeout;
 };
 
+type ParsingOptions =
+  | {
+      type: 'tail';
+      options: Readers.TailLogReader['options'];
+    }
+  | {
+      type: 'ftp';
+      options: Readers.FTPLogReader['options'];
+    }
+  | {
+      type: 'sftp';
+      options: Readers.SFTPLogReader['options'];
+    };
+
 type OHDOptions = {
   disableAutoStatus: boolean;
   autoReconnect: boolean;
+  logParsing?: ParsingOptions;
 };
 
 /**
@@ -209,6 +208,7 @@ export default class OHD {
    */
   public onReady!: Promise<null>;
   public rconParser!: RCONParser;
+  public logParser!: LogParser;
   /**
    * Online Players
    */
@@ -224,12 +224,16 @@ export default class OHD {
   >;
   protected messageID!: number;
   protected _conn!: Rcon;
+  protected _log!:
+    | Readers.FTPLogReader
+    | Readers.SFTPLogReader
+    | Readers.TailLogReader;
   protected _isAuthorized!: boolean;
   protected _responsePromiseQueue!: Map<number, ResponsePromiseQueueObject>;
   public debug = false;
   /**Reconnect to the client */
   public reconnect!: () => Promise<unknown>;
-  public _events!: EventEmitter;
+  public _events!: events.EventEmitter;
   constructor(
     ip: string,
     port: number,
@@ -243,7 +247,7 @@ export default class OHD {
     Object.defineProperty(this, 'messageID', { enumerable: false, value: 1 });
     Object.defineProperty(this, '_events', {
       enumerable: false,
-      value: new EventEmitter(),
+      value: new events.EventEmitter(),
     });
     Object.defineProperty(this, '_responsePromiseQueue', {
       enumerable: false,
@@ -256,6 +260,10 @@ export default class OHD {
     Object.defineProperty(this, 'rconParser', {
       enumerable: false,
       value: new RCONParser(this),
+    });
+    Object.defineProperty(this, 'logParser', {
+      enumerable: false,
+      value: new LogParser(this),
     });
     Object.defineProperty(this, '_onResponse', {
       enumerable: false,
@@ -323,7 +331,7 @@ export default class OHD {
         this._events.emit('error', err);
       });
     if (!options?.disableAutoStatus) {
-      const getStatus = (() => {
+      const getStatus = () => {
         this.status().then((status) => {
           if (status.Players != null)
             this._updatePlayers(
@@ -331,11 +339,50 @@ export default class OHD {
             );
           this._updateServerStatus(status);
         });
-      }).bind(this);
+      };
       this.onReady
         .then(() => {
           getStatus();
           setInterval(getStatus, 8000);
+          //! Log Handler
+          if (options?.logParsing != null) {
+            const handleLogLine = (line: string) => {
+              const logParsed = this.logParser.parse(line);
+              if (
+                (logParsed as { type: 'chat'; data: PlayerChat }).type ===
+                'chat'
+              ) {
+                const message = new Message(
+                  this,
+                  (logParsed as { type: 'chat'; data: PlayerChat }).data,
+                );
+                this._events.emit('CHAT', message);
+              }
+            };
+            switch (options.logParsing.type) {
+              case 'tail':
+                this._log = new Readers.TailLogReader(
+                  handleLogLine.bind(this),
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  options.logParsing.options as any,
+                );
+                break;
+              case 'ftp':
+                this._log = new Readers.FTPLogReader(
+                  handleLogLine.bind(this),
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  options.logParsing.options as any,
+                );
+                break;
+              case 'sftp':
+                this._log = new Readers.SFTPLogReader(
+                  handleLogLine.bind(this),
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  options.logParsing.options as any,
+                );
+                break;
+            }
+          }
         })
         .catch(() => {
           //OOPS
@@ -348,47 +395,57 @@ export default class OHD {
   /**
    * The bot is ready
    */
-  public on(event: 'READY', cb: () => void): EventEmitter;
+  public on(event: 'READY', cb: () => void): events.EventEmitter;
+  /**
+   * Chat messages sent in the server
+   */
+  public on(event: 'CHAT', cb: (message: Message) => void): events.EventEmitter;
   /**
    * The player joined the server
    */
-  public on(event: 'PLAYER_JOINED', cb: (player: Player) => void): EventEmitter;
+  public on(
+    event: 'PLAYER_JOINED',
+    cb: (player: Player) => void,
+  ): events.EventEmitter;
   /**
    * The player left the server
    */
-  public on(event: 'PLAYER_LEFT', cb: (player: Player) => void): EventEmitter;
+  public on(
+    event: 'PLAYER_LEFT',
+    cb: (player: Player) => void,
+  ): events.EventEmitter;
   /**
    * The player was deleted from memory
    */
   public on(
     event: 'PLAYER_DELETED',
     cb: (player: Player) => void,
-  ): EventEmitter;
+  ): events.EventEmitter;
   /**
    * The player was kicked
    */
   public on(
     event: 'PLAYER_KICKED',
     cb: (player: Player, event: PlayerKicked) => void,
-  ): EventEmitter;
+  ): events.EventEmitter;
   /**
    * The player was banned
    */
   public on(
     event: 'PLAYER_BANNED',
     cb: (player: Player, event: PlayerBanned) => void,
-  ): EventEmitter;
+  ): events.EventEmitter;
   public on(
-    event: Parameters<EventEmitter['on']>[0],
-    cb: Parameters<EventEmitter['on']>[1],
-  ): EventEmitter {
+    event: Parameters<events.EventEmitter['on']>[0],
+    cb: Parameters<events.EventEmitter['on']>[1],
+  ): events.EventEmitter {
     return this._events.on(event, cb);
   }
 
   public removeListener(
-    event: Parameters<EventEmitter['removeListener']>[0],
-    cb: Parameters<EventEmitter['removeListener']>[1],
-  ): EventEmitter {
+    event: Parameters<events.EventEmitter['removeListener']>[0],
+    cb: Parameters<events.EventEmitter['removeListener']>[1],
+  ): events.EventEmitter {
     return this._events.removeListener(event, cb);
   }
   protected _updateServerStatus(status: ServerStatus) {
@@ -507,48 +564,10 @@ export default class OHD {
     return this.send(`removeBluforBots ${amount}`);
   }
   /**
-   * Set the state of FriendlyFire
-   * @depricated use OHD.variables
-   */
-  public friendlyFire(enabled: boolean | -1 | 1): Promise<VariableChanged> {
-    return this.variables.Game.FriendlyFire.write(enabled ? '1' : '-1');
-  }
-  /**
-   * Forces all new players to the specified team. Users can not change to any other team.
-   *
-   * @note This does not force change existing players team, only new ones
-   * @depricated use OHD.variables
-   */
-  public autoAssignHumanTeam(
-    team: -1 | 0 | 1 | Teams,
-  ): Promise<VariableChanged> {
-    return this.variables.Game.AutoAssignHumanTeam.write(
-      team.toString() as '-1',
-    );
-  }
-  /**
-   * Enable/Disable Team Autobalancing
-   * @depricated use OHD.variables
-   */
-  public autoBalanceTeamsOverride(
-    enabled: boolean | -1 | 1,
-  ): Promise<VariableChanged> {
-    return this.variables.Game.AutoBalanceTeamsOverride.write(
-      enabled ? '1' : '-1',
-    );
-  }
-  /**
    * Remove all bots from the server.
    */
   public removeAllBots(): Promise<void> {
     return this.send('removeAllBots') as Promise<void>;
-  }
-  /**
-   * Set the bot autofill variable
-   * @depricated use OHD.variables
-   */
-  public botAutofill(enabled: boolean | -1 | 1): Promise<VariableChanged> {
-    return this.variables.Bot.Autofill.write(enabled ? '1' : '-1');
   }
   /**
    * Kick a `Player` from the server by Username
@@ -677,32 +696,6 @@ export default class OHD {
    */
   get variablesUnsafe() {
     return setupVariableProxy<UnsafeVariables>(this);
-  }
-  /**
-   * Set the AutoAssignHuman variable.
-   *
-   * -1: Disable
-   *
-   *  0: Opfor
-   *
-   *  1: Blufor
-   * @depricated use OHD.variables
-   */
-  public autoAssignHuman(
-    team: -1 | 0 | 1 | Teams = -1,
-  ): Promise<VariableChanged> {
-    return this.variables.Game.AutoAssignHumanTeam.write(
-      team.toString() as '-1',
-    );
-  }
-  /**
-   * Set the respawn delay
-   * @depricated use OHD.variables
-   */
-  public minRespawnDelay(seconds: number): Promise<VariableChanged> {
-    return this.variables.HD.Game.MinRespawnDelayOverride.write(
-      seconds.toString() as '0',
-    );
   }
   /**
    * Change the current Level.
