@@ -1,4 +1,4 @@
-export default interface PlayerBanned {
+export interface PlayerBanned {
   success: boolean;
   name?: string;
   id?: number;

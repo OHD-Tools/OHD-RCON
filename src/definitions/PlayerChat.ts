@@ -1,4 +1,4 @@
-export default interface PlayerChat {
+export interface PlayerChat {
   time: Date;
   channel: string;
   player_id: string;

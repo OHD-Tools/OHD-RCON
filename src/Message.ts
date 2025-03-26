@@ -1,7 +1,7 @@
-import PlayerChat from './definitions/PlayerChat';
-import OHD from './OHD';
-import Player from './Player';
-export default class Message {
+import { PlayerChat } from './definitions/PlayerChat';
+import { OHD } from './OHD';
+import { Player } from './Player';
+export class Message {
   public created: PlayerChat['time'];
   public channel: PlayerChat['channel'];
   public steam64: PlayerChat['player_id'];

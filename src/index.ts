@@ -1,6 +1,6 @@
 export { Teams } from './definitions/Teams';
-export { default as OHD } from './OHD';
-export { default as Player } from './Player';
+export { OHD } from './OHD';
+export { Player } from './Player';
 export {
   Maps,
   Factions,

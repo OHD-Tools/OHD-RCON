@@ -1,4 +1,4 @@
-export default interface PlayerKicked {
+export interface PlayerKicked {
   success: boolean;
   name?: string;
   id?: number;

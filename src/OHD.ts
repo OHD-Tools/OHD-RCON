@@ -1,20 +1,20 @@
 import events from 'events';
 import net from 'net';
-import ServerStatus from './definitions/ServerStatus';
+import { ServerStatus } from './definitions/ServerStatus';
 import { MapQuery, MapQueryProps, Readers } from '@ohd-tools/utils';
 import { RCONParser, LogParser } from './parser';
-import PlayerKicked from './definitions/PlayerKicked';
-import PlayerBanned from './definitions/PlayerBanned';
+import { PlayerKicked } from './definitions/PlayerKicked';
+import { PlayerBanned } from './definitions/PlayerBanned';
 import { Teams } from './definitions/Teams';
 import { setupVariableProxy } from './utils/Variables';
 import {
   ServerVariables,
   UnsafeVariables,
 } from './definitions/ServerVariables';
-import Player from './Player';
-import CommandSuccess from './definitions/CommandSuccess';
-import PlayerChat from './definitions/PlayerChat';
-import Message from './Message';
+import { Player } from './Player';
+import { CommandSuccess } from './definitions/CommandSuccess';
+import { PlayerChat } from './definitions/PlayerChat';
+import { Message } from './Message';
 
 enum PacketType {
   COMMAND = 0x02,
@@ -202,7 +202,7 @@ type OHDOptions = {
 /**
  * Primary Interface Object for OHD servers.
  */
-export default class OHD {
+export class OHD {
   /**
    * Rejects if an error occurs when connecting.
    */

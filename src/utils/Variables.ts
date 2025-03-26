@@ -1,6 +1,6 @@
-import type OHD from '../OHD';
-import VariableChanged from '../definitions/VariableChanges';
-import VariableRead from '../definitions/VariableRead';
+import type { OHD } from '../OHD';
+import { VariableChanged } from '../definitions/VariableChanges';
+import { VariableRead } from '../definitions/VariableRead';
 const noop = () => {};
 
 export interface Readable<T> {

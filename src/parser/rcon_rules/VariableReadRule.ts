@@ -1,7 +1,7 @@
-import LogParserRule from '../../definitions/RCONParserRule';
-import VariableRead from '../../definitions/VariableRead';
+import { RCONParserRule } from '../../definitions/RCONParserRule';
+import { VariableRead } from '../../definitions/VariableRead';
 
-const VariableReadRule: LogParserRule<VariableRead> = {
+export const VariableReadRule: RCONParserRule<VariableRead> = {
   regex: /^(?<variable>.*) = "(?<value>.*)"\s*LastSetBy: (?<setBy>.*)$/m,
   format: (oargs) => {
     const args = oargs as RegExpMatchArray;
@@ -12,4 +12,3 @@ const VariableReadRule: LogParserRule<VariableRead> = {
     return response as VariableRead;
   },
 };
-export default VariableReadRule;

@@ -1,4 +1,4 @@
-export default interface CommandSuccess {
+export interface CommandSuccess {
   success: boolean;
   reason?: string;
 }

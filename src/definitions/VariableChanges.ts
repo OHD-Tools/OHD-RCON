@@ -1,4 +1,4 @@
-export default interface VariableChanged {
+export interface VariableChanged {
   variable: string;
   value: string;
 }

@@ -1,3 +1,3 @@
-import PlayerChatRule from './PlayerChatRule';
+import { PlayerChatRule } from './PlayerChatRule';
 
-export default [PlayerChatRule];
+export const rules = [PlayerChatRule];
