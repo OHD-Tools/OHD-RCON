@@ -1,6 +1,6 @@
 {
   "name": "@ohd-tools/rcon",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "type": "commonjs",
