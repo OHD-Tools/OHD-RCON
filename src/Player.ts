@@ -1,8 +1,8 @@
 import EventEmitter from 'events';
-import type OHD from './OHD';
+import type { OHD } from './OHD';
 import type { Teams } from './definitions/Teams';
-import PlayerKicked from './definitions/PlayerKicked';
-import PlayerBanned from './definitions/PlayerBanned';
+import { PlayerKicked } from './definitions/PlayerKicked';
+import { PlayerBanned } from './definitions/PlayerBanned';
 type PlayerProps = {
   id: number;
   steam64: string | null;
@@ -12,7 +12,7 @@ type PlayerProps = {
 /**
  * Generic Player Object
  */
-export default class Player {
+export class Player {
   public id: PlayerProps['id'];
   public steam64: PlayerProps['steam64'];
   public name: PlayerProps['name'];

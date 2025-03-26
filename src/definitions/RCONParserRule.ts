@@ -1,6 +1,6 @@
-import type OHD from '../OHD';
+import type { OHD } from '../OHD';
 
-export default interface RCONParserRule<T> {
+export interface RCONParserRule<T> {
   regex: RegExp | RegExp[];
   format: (
     args: RegExpMatchArray | RegExpMatchArray[],

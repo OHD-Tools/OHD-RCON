@@ -1,6 +1,6 @@
-import Player from '../../Player';
-import LogParserRule from '../../definitions/RCONParserRule';
-const StatusPlayerRule: LogParserRule<Player[]> = {
+import { Player } from '../../Player';
+import { RCONParserRule } from '../../definitions/RCONParserRule';
+export const StatusPlayerRule: RCONParserRule<Player[]> = {
   regex: /(?<Player_ID>\d+)\s+(?<Name>.+)\s+(?<Steam64>BOT|(?:765\d{14}))/gm,
   matchAll: true,
   format: (oargs, controller) => {
@@ -22,4 +22,3 @@ const StatusPlayerRule: LogParserRule<Player[]> = {
   },
   multiProperty: 'players',
 };
-export default StatusPlayerRule;

@@ -1,7 +1,7 @@
-import LogParserRule from '../../definitions/RCONParserRule';
-import VariableChanged from '../../definitions/VariableChanges';
+import { RCONParserRule } from '../../definitions/RCONParserRule';
+import { VariableChanged } from '../../definitions/VariableChanges';
 
-const VariableChangedRule: LogParserRule<VariableChanged> = {
+export const VariableChangedRule: RCONParserRule<VariableChanged> = {
   regex: /^(?<variable>.*) = "(?<value>.*)"$/m,
   format: (oargs) => {
     const args = oargs as RegExpMatchArray;
@@ -11,4 +11,3 @@ const VariableChangedRule: LogParserRule<VariableChanged> = {
     return response as VariableChanged;
   },
 };
-export default VariableChangedRule;

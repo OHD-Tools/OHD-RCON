@@ -1,9 +1,9 @@
-import ParserRule from '../definitions/RCONParserRule';
-import type OHD from '../OHD';
-export default class BaseParser {
-  rules: ParserRule<unknown>[] = [];
+import { RCONParserRule } from '../definitions/RCONParserRule';
+import type { OHD } from '../OHD';
+export class BaseParser {
+  rules: RCONParserRule<unknown>[] = [];
   controller: OHD;
-  constructor(controller: OHD, rules: ParserRule<unknown>[]) {
+  constructor(controller: OHD, rules: RCONParserRule<unknown>[]) {
     this.controller = controller;
     this.rules = rules;
   }

@@ -1,7 +1,7 @@
-import PlayerKicked from '../../definitions/PlayerKicked';
-import LogParserRule from '../../definitions/RCONParserRule';
+import { PlayerKicked } from '../../definitions/PlayerKicked';
+import { RCONParserRule } from '../../definitions/RCONParserRule';
 
-const PlayerKickedRule: LogParserRule<PlayerKicked> = {
+export const PlayerKickedRule: RCONParserRule<PlayerKicked> = {
   regex: [
     /^(?<kickSuccess>Player with (?<type>name|id number) '(?<identifier>.*)' was successfully kicked from the server with reason '(?<reason>.*)')/,
     /^(?<kickFailed>Failed to kick specified player by (id number|name) with reason '(?<reason>.*)', no player with the (?<type>name|id number) '(?<identifier>.*)' exists or the kick operation has failed!)/,
@@ -20,4 +20,3 @@ const PlayerKickedRule: LogParserRule<PlayerKicked> = {
     return response as PlayerKicked;
   },
 };
-export default PlayerKickedRule;

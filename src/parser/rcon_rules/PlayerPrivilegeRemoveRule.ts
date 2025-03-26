@@ -1,7 +1,7 @@
-import CommandSuccess from '../../definitions/CommandSuccess';
-import LogParserRule from '../../definitions/RCONParserRule';
+import { CommandSuccess } from '../../definitions/CommandSuccess';
+import { RCONParserRule } from '../../definitions/RCONParserRule';
 
-const PlayerPrivilegeRemoveRule: LogParserRule<CommandSuccess> = {
+export const PlayerPrivilegeRemoveRule: RCONParserRule<CommandSuccess> = {
   regex: [
     /^(?<removeSuccess>Player was revoked of their admin privileges)/,
     /^(?<removeFailed>Failed to remove player from admin list, player is not an admin)/,
@@ -15,4 +15,3 @@ const PlayerPrivilegeRemoveRule: LogParserRule<CommandSuccess> = {
     return response as CommandSuccess;
   },
 };
-export default PlayerPrivilegeRemoveRule;

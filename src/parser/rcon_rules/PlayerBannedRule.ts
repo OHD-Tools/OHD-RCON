@@ -1,7 +1,7 @@
-import LogParserRule from '../../definitions/RCONParserRule';
-import PlayerBanned from '../../definitions/PlayerBanned';
+import { RCONParserRule } from '../../definitions/RCONParserRule';
+import { PlayerBanned } from '../../definitions/PlayerBanned';
 
-const PlayerBannedRule: LogParserRule<PlayerBanned> = {
+export const PlayerBannedRule: RCONParserRule<PlayerBanned> = {
   regex: [
     /^(?<banSuccess>Player with (?<type>name|id number) '(?<identifier>.*)' was successfully banned from the server with reason '(?<reason>.*)' for '(?<length>.*)' minutes)/,
     /^(?<banFailed>Failed to ban specified player by (?<type>name|id number) with reason '(?<reason>.*)', no player with the (name|id number) '(?<identifier>.*)' exists or the ban operation has failed!)/,
@@ -22,4 +22,3 @@ const PlayerBannedRule: LogParserRule<PlayerBanned> = {
     return response as PlayerBanned;
   },
 };
-export default PlayerBannedRule;

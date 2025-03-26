@@ -1,5 +1,5 @@
-import type Player from '../Player';
-export default interface ServerStatus {
+import type { Player } from '../Player';
+export interface ServerStatus {
   Server_Name: string;
   Local_Address: string;
   Map: string;

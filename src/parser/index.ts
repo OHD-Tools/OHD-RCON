@@ -1,2 +1,2 @@
-export { default as LogParser } from './LogParser';
-export { default as RCONParser } from './RCONParser';
+export { LogParser } from './LogParser';
+export { RCONParser } from './RCONParser';
