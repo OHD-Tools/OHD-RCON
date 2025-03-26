@@ -194,8 +194,8 @@ type ParsingOptions =
     };
 
 type OHDOptions = {
-  disableAutoStatus: boolean;
-  autoReconnect: boolean;
+  disableAutoStatus?: boolean;
+  autoReconnect?: boolean;
   logParsing?: ParsingOptions;
 };
 
@@ -303,7 +303,7 @@ export default class OHD {
       this._conn.connect();
     };
     this._conn.autoReconnect =
-      options?.autoReconnect ?? this._conn.autoReconnect;
+      options?.autoReconnect ?? this._conn.autoReconnect ?? true;
     this._conn
       .on('response', this._onResponse)
       .on('error', this._onError)
@@ -348,6 +348,7 @@ export default class OHD {
           if (options?.logParsing != null) {
             const handleLogLine = (line: string) => {
               const logParsed = this.logParser.parse(line);
+              if (logParsed == null) return;
               if (
                 (logParsed as { type: 'chat'; data: PlayerChat }).type ===
                 'chat'
